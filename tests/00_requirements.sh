@@ -13,3 +13,12 @@
     )
     [ "$version" == '0.10.5' ]
 }
+
+@test "AtomicParsley is installed" {
+    which AtomicParsley
+}
+
+@test "AtomicParsley is the right version" {
+    run AtomicParsley --version
+    [ "$output" == "AtomicParsley version: 0.9.6 (utf8)" ]
+}

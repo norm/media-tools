@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+
+function media_tag_video {
+    local file="$1"
+    shift
+
+    local atomic_args=()
+    local season
+    local episode
+
+    for arg in "$@"; do
+        atomic_args+=("$arg")
+        case "$arg" in
+            --TVSeasonNum*)
+                season=${arg##--TVSeasonNum=}
+                ;;
+            --TVEpisodeNum*)
+                episode=${arg##--TVEpisodeNum=}
+                ;;
+            *)
+                ;;
+        esac
+    done
+
+    if [ -n "$season" -a -n "$episode" ]; then
+        episode=${episode##0}
+        episode_id=$( printf "%dx%02d" $season $episode )
+        atomic_args+=("--TVEpisode=$episode_id")
+    fi
+
+    AtomicParsley           \
+        "$file"             \
+        --overWrite         \
+        "${atomic_args[@]}"
+}
+
+media_tag_video "$@"

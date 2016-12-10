@@ -15,6 +15,13 @@ function run_tests {
 }
 
 function download_sample_files {
+    # download a tiny sample video
+    [ ! -f tests/source/tiny.mp4 ] \
+        && youtube-dl \
+                -f 18 \
+                -o tests/source/tiny.mp4 \
+                H8XaHC4ilts
+
     # smaller AC3 source file
     # found via http://www.digital-digest.com/movies/movie_index.php?type=dolby
     if [ ! -f tests/source/720p-ac3.vob ]; then
