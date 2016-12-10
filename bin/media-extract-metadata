@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+function media_extract_metadata {
+    perl -E "
+        sub quote_string {
+            my \$string = shift;
+            \$string =~ s/\"/\\\\\"/g;
+            return qq(\"\$string\");
+        }
+
+        my \$extract = qq($1);
+
+        # strip trailing slashes
+        \$extract =~ s{/$}{};
+
+        # strip everything but the last dir
+        \$extract =~ s{ ^ .*?/ ([^/]+) $}{\1}x;
+
+        \$extract =~ m{
+            ^
+            (?<series> .* )
+            \s+ - \s+
+            (?<season> \d+ )
+            x
+            (?<episode> \d+ )
+            \s+ - \s+
+            (?<title> .* )
+            $
+        }x;
+
+        if (defined $+{'series'}) {
+            say join ' ',
+                '--TVShowName=' . quote_string($+{'series'}),
+                '--TVSeasonNum=' . $+{'season'},
+                '--TVEpisodeNum=' . $+{'episode'},
+                '--title=' . quote_string($+{'title'}),
+                '--stik=' . quote_string('TV Show'),
+        }
+        else {
+            say qq(Error: unknown format '\$extract');
+        }
+";
+}
+
+media_extract_metadata "$1"
