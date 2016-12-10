@@ -1,0 +1,30 @@
+#!/bin/sh
+
+blue="\e[34m"
+reset="\e[0m"
+
+export PATH=./bin:$PATH
+
+
+function run_tests {
+    for test_script in tests/*.sh; do
+        printf "${blue}-- $test_script${reset}\n"
+        bats --tap $test_script
+        echo ''
+    done
+}
+
+function download_sample_files {
+    # smaller AC3 source file
+    # found via http://www.digital-digest.com/movies/movie_index.php?type=dolby
+    if [ ! -f tests/source/720p-ac3.vob ]; then
+        curl -C- -O http://downloads.dvdloc8.com/trailers/dolbydts/dolbycanyon.zip
+        unzip dolbycanyon.zip
+        mv dolbycanyon.vob tests/source/720p-ac3.vob
+        rm dolbycanyon.zip readme.txt
+    fi
+}
+
+
+download_sample_files
+run_tests

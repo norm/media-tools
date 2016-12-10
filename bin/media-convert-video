@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e
+
+function media_convert_video {
+    local input="$1"
+    local output="$2"
+    local track="${3:-1}"
+
+    local -a handbrake_args
+
+    # no more than 1080p
+    handbrake_args+=('--maxWidth' '1920')
+    handbrake_args+=('--maxHeight' '1080')
+
+    # loose anamorphic pictures
+    handbrake_args+=('--loose-anamorphic')
+    handbrake_args+=('--modulus' '2')
+
+    # auto crop detection is sometimes wrong, so never crop
+    handbrake_args+=('--crop' '0:0:0:0')
+
+    # deinterlace if needed
+    handbrake_args+=('--decomb' 'fast')
+
+    # use source frame rate, except clip at 30
+    handbrake_args+=('--rate' '30')
+    handbrake_args+=('--pfr')
+
+    # prefer slower transforms for higher quality output
+    handbrake_args+=('--quality' '22')
+    handbrake_args+=('--x264-preset' 'slow')
+    handbrake_args+=('--h264-profile' 'high')
+    handbrake_args+=('--h264-level' '4.1')
+
+    # x264 encoded mp4 files
+    handbrake_args+=('--format' 'mp4')
+    handbrake_args+=('--encoder' 'x264')
+    handbrake_args+=('--encopts' 'b-adapt=2')
+
+    # preserve chapter markers if in source
+    handbrake_args+=('--markers')
+
+    # 1-track 5.1 AC3 audio conversion
+    handbrake_args+=('--ab' '640')
+    handbrake_args+=('--mixdown' '6ch')
+    handbrake_args+=('--arate' 'Auto')
+    handbrake_args+=('copy:ac3')
+
+    HandBrakeCLI \
+        "${handbrake_args[@]}"      \
+        -i "$input"                 \
+        -t "$track"                 \
+        -o "$output"
+
+}
+
+media_convert_video "$@"
