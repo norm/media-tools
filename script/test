@@ -32,6 +32,16 @@ function download_sample_files {
     fi
 }
 
+function download_posters {
+    [ ! -f tests/source/tv.jpg ] \
+        && curl -o tests/source/tv.jpg \
+            http://is1.mzstatic.com/image/thumb/Music/v4/8c/cc/4c/8ccc4c87-878a-77d8-c358-e036c8c25b7b/source/600x600bb.jpg
+    [ ! -f tests/source/movie.jpg ] \
+        && curl -o tests/source/movie.jpg \
+            http://is2.mzstatic.com/image/thumb/Video/v4/f6/72/6e/f6726e35-72e3-9cab-d435-3bec128c5ed4/source/600x600bb.jpg
+}
+
 
 download_sample_files
+download_posters
 run_tests

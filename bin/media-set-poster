@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+file="$1"
+shift
+
+for poster in "$@"; do
+    AtomicParsley           \
+        "$file"             \
+        --overWrite         \
+        --artwork "$poster"
+done
