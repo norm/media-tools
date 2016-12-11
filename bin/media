@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function media_lookup_atom {
+    local file="$1"
+    local atom="$2"
+
+    # the perl invocation removes a unicode byte order mark character, which
+    # is probably useful, but makes it really hard to grep things consistently
+    AtomicParsley "$file" -t                \
+        | perl -ne 's/^[^A]+//m; print;'    \
+        | grep "Atom .${atom}."             \
+        | cut -c23-
+}

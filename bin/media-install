@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+source $(which media)
+
+TV_BASE=${MEDIA_TV_BASE:=/files/tv}
+
+
+function media_install {
+    local file="$1"
+    local type
+
+    while [ -n "$file" ]; do
+        type=$( media_lookup_atom "$file" stik )
+
+        case "$type" in
+            TV*)    media_install_tv "$file";;
+            *)      echo "Unknown media type: '${type}'";;
+        esac
+
+        shift
+        file="$1"
+    done
+}
+
+function media_install_tv {
+    local file="$1"
+
+    local series=$( media_lookup_atom "$file" tvsh )
+    local season=$( media_lookup_atom "$file" tvsn )
+    local episode=$( printf '%02d' $( media_lookup_atom "$file" tves ) )
+    local title=$( media_lookup_atom "$file" ©nam )
+    local destination
+
+    destination="${TV_BASE}/$series/Season $season/$episode $title.m4v"
+    destdir=$( dirname "$destination" )
+    mkdir -p "$destdir"
+    mv "$file" "$destination"
+
+    echo "$destination"
+}
+
+media_install "$@"
