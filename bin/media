@@ -1,5 +1,15 @@
 #!/bin/bash
 
+reset="\e[0m"
+bold="\e[1m"
+red="\e[31m"
+
+function media_error {
+    printf "${bold}${red}*** ${*}${reset}\n"
+    exit 1
+}
+
+
 function media_lookup_atom {
     local file="$1"
     local atom="$2"
