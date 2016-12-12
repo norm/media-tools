@@ -30,6 +30,27 @@ function download_sample_files {
         mv dolbycanyon.vob tests/source/720p-ac3.vob
         rm dolbycanyon.zip readme.txt
     fi
+
+    # DTS source
+    # found via http://www.digital-digest.com/movies/movie_index.php?type=dolby
+    if [ ! -f tests/source/sd-dts.vob ]; then
+        curl -C- -O http://downloads.dvdloc8.com/trailers/dolbydts/dtspiano.zip
+        unzip dtspiano.zip
+        mv dtspiano.vob tests/source/sd-dts.vob
+        rm dtspiano.zip readme.txt
+    fi
+
+    # AAC source
+    if [ ! -f tests/source/aac.mp4 ]; then
+        curl -C- -L -o tests/source/aac.mp4 \
+            https://archive.org/download/5.1SurroundSoundTestFilesVariousFormatsAACAC3MP4DTSWAV/Splash.mp4
+    fi
+
+    # MP3 source
+    # found via http://www.divx.com/en/devices/profiles/video
+    [ ! -f tests/source/mp3.divx ] \
+        && curl -o tests/source/mp3.divx \
+                http://trailers.divx.com/divx_prod/profiles/Helicopter_DivXHT_ASP.divx
 }
 
 function download_posters {
