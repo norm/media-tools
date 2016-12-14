@@ -1,13 +1,15 @@
 #!/bin/bash
 
 set -e
+source $(which media)
+
 
 function convert_and_add_tv {
     local dir="$1"
     local video="$2"
 
     local file=$( basename "$video" )
-    local output="media_conversion_${file%.*}.m4v"
+    local output="${CONVERT_DIR}/media_conversion_${file%.*}.m4v"
 
     media-convert-video "$video" "$output"
 

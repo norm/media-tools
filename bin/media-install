@@ -4,8 +4,6 @@ set -e
 
 source $(which media)
 
-TV_BASE=${MEDIA_TV_BASE:=/files/tv}
-
 
 function media_install {
     local file="$1"

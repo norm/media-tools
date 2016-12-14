@@ -4,11 +4,28 @@ reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
 
+# default configuration
+CONVERT_DIR=/tmp
+TV_BASE=/files/tv
+
+# override config with file
+[ -n "$MEDIA_CONFIG" ] \
+    && source "$MEDIA_CONFIG"
+
+# override with env, which takes precedence over file
+CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
+TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
+
+
 function media_error {
     printf "${bold}${red}*** ${*}${reset}\n"
     exit 1
 }
 
+function show_configuration {
+    echo "CONVERT_DIR=$CONVERT_DIR"
+    echo "TV_BASE=$TV_BASE"
+}
 
 function media_lookup_atom {
     local file="$1"
@@ -21,3 +38,13 @@ function media_lookup_atom {
         | grep "Atom .${atom}."             \
         | cut -c23-
 }
+
+
+if [ "$0" = "$BASH_SOURCE" ]; then
+    # being run as a command, not sourced by another script
+    case "$1" in
+        show-config)
+            show_configuration
+            ;;
+    esac
+fi
