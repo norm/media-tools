@@ -59,6 +59,13 @@ function list_available_commands {
     done
 }
 
+function run_command {
+    local command="media-$1"
+    shift
+
+    $command "$@"
+}
+
 
 if [ "$0" = "$BASH_SOURCE" ]; then
     # being run as a command, not sourced by another script
@@ -69,6 +76,9 @@ if [ "$0" = "$BASH_SOURCE" ]; then
 
         show-config)
             show_configuration
+            ;;
+
+        *)  run_command "$@"
             ;;
     esac
 fi
