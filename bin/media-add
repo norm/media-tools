@@ -4,6 +4,25 @@ set -e
 source $(which media)
 
 
+function clean_up_converted {
+    local dir="$1"
+    local video="$2"
+
+    if [ -n "$TRASH_DIR" ]; then
+        mkdir -p "$TRASH_DIR"
+        mv "$video" "$TRASH_DIR"
+        rm -f \
+            "$dir/poster.jpg" "$dir/"poster-resized-*.jpg \
+            "$dir/poster.png" "$dir/"poster-resized-*.png \
+            "$dir/.DS_Store"
+
+        # don't exit (because of `set -e`) if we haven't cleaned all the
+        # contents out (that's not an error worth stopping for)
+        rmdir "$dir" \
+            || true
+    fi
+}
+
 function convert_and_add_tv {
     local dir="$1"
     local video="$2"
@@ -19,6 +38,8 @@ function convert_and_add_tv {
     [ -f "$dir/poster.png" ] && media-set-poster "$output" "$dir/poster.png"
 
     path=$( eval media-install "$output" )
+
+    clean_up_converted "$dir" "$video"
 }
 
 for directory in "$@"; do
