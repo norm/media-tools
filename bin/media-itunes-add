@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -e
+
+source $(which media)
+summary_line "$*" 'add a file to the iTunes library'
+
+
 function get_absolute_path {
     local dir=$( dirname "$1" )
     local file=$( basename "$1" )

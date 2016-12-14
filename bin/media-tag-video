@@ -2,6 +2,10 @@
 
 set -e
 
+source $(which media)
+summary_line "$*" 'add metadata to a video file'
+
+
 function media_tag_video {
     local file="$1"
     shift

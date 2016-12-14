@@ -2,6 +2,10 @@
 
 set -e
 
+source $(which media)
+summary_line "$*" 'add poster image(s) to a file'
+
+
 file="$1"
 shift
 

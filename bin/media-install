@@ -3,6 +3,7 @@
 set -e
 
 source $(which media)
+summary_line "$*" 'file new media in the right place'
 
 
 function media_install {

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 set -e
+
 source $(which media)
+summary_line "$*" 'convert and add new media to iTunes library'
 
 
 function clean_up_converted {

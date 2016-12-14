@@ -45,10 +45,28 @@ function media_lookup_atom {
         | cut -c23-
 }
 
+function summary_line {
+    if [ "$1" = '--summary' ]; then
+        echo "$2"
+        exit
+    fi
+}
+
+function list_available_commands {
+    for command in $( compgen -c | grep '^media-' ); do
+        printf '%16s  ' $( echo $command | cut -c7- )
+        $command --summary
+    done
+}
+
 
 if [ "$0" = "$BASH_SOURCE" ]; then
     # being run as a command, not sourced by another script
     case "$1" in
+        ''|-h|--help)
+            list_available_commands
+            ;;
+
         show-config)
             show_configuration
             ;;
