@@ -57,3 +57,17 @@ source bin/media-convert-video
     [ "${args[8]}" = '--aencoder' ]
     [ "${args[9]}" = 'ca_aac' ]
 }
+
+@test "multiple streams" {
+    local -a args=($( get_audio_arguments "tests/source/multiple.divx" ))
+    [ "${args[0]}" = '--audio' ]
+    [ "${args[1]}" = '1,2' ]
+    [ "${args[2]}" = '--ab' ]
+    [ "${args[3]}" = '160,640' ]
+    [ "${args[4]}" = '--mixdown' ]
+    [ "${args[5]}" = 'stereo,6ch' ]
+    [ "${args[6]}" = '--arate' ]
+    [ "${args[7]}" = '48,Auto' ]
+    [ "${args[8]}" = '--aencoder' ]
+    [ "${args[9]}" = 'ca_aac,copy:ac3' ]
+}

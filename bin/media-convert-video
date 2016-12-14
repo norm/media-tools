@@ -15,40 +15,71 @@ function get_stream_keywords {
     echo "$stream" | perl -ne '
         s{
             ^ .*
+            \+ \s+ (\d+), .*
             \( (.*?) \) \s+
             \( (.*?) \s+ ch \) \s+
             \( iso639-2: \s+ (\w+) \)
             .* $
-        }{\1 \2 \3}x;
+        }{\1 \2 \3 \4}x;
         print;
     '
+}
+
+function comma_separated {
+    local IFS=","
+    echo "$*"
 }
 
 function get_audio_arguments {
     local input="$1"
 
-    local streams=$( get_audio_streams "$input" | wc -l | tr -d ' ' )
-    if [ "$streams" -ne 1 ]; then
-        echo >&2 'Can only convert sources with one audio stream.'
-        exit 1
-    fi
+    # TODO
+    # filter language (only English/unknown, French/unknown, etc)
+    # force 5.1ch to 2ch, 2ch to mono, etc
+    local -a arg_channel
+    local -a arg_bitrate
+    local -a arg_mixdown
+    local -a arg_rate
+    local -a arg_encoder
+    local quality
+    local channel 
+    local language
 
-    echo '--audio 1'
+    while IFS= read -r line; do
+        read -r stream quality channel language < <( get_stream_keywords "$line" )
 
-    streams=$( get_audio_streams "$input" )
-    read -r quality channel language < <( get_stream_keywords "$streams" )
-
-    if [ "$quality" = 'AC3' ]; then
-        echo '--ab 640 --mixdown 6ch --arate Auto --aencoder copy:ac3'
-    elif [ "$quality" = 'DTS' ]; then
-        echo '--ab 640 --mixdown 6ch --arate Auto --aencoder copy:dts'
-    elif [ "$quality" = 'AAC' ]; then
-        echo '--ab 640 --mixdown 6ch --arate Auto --aencoder copy:aac'
-    elif [ "$quality" = 'MP3' ]; then
-        if [ "$channel" = '2.0' ]; then
-            echo '--ab 160 --mixdown stereo --arate 48 --aencoder ca_aac'
-        elif [ "$channel" = '1.0' ]; then
-            echo '--ab 80 --mixdown momo --arate 48 --aencoder ca_aac'
+        arg_channel+=($stream)
+        if [ "$quality" = 'AC3' ]; then
+            arg_bitrate+=('640')
+            arg_mixdown+=('6ch')
+            arg_rate+=('Auto')
+            arg_encoder+=('copy:ac3')
+        elif [ "$quality" = 'DTS' ]; then
+            arg_bitrate+=('640')
+            arg_mixdown+=('6ch')
+            arg_rate+=('Auto')
+            arg_encoder+=('copy:dts')
+        elif [ "$quality" = 'AAC' ]; then
+            arg_bitrate+=('640')
+            arg_mixdown+=('6ch')
+            arg_rate+=('Auto')
+            arg_encoder+=('copy:aac')
+        elif [ "$quality" = 'MP3' ]; then
+            arg_encoder+=('ca_aac')
+            arg_rate+=('48')
+            if [ "$channel" = '2.0' ]; then
+                arg_bitrate+=('160')
+                arg_mixdown+=('stereo')
+            elif [ "$channel" = '1.0' ]; then
+                arg_bitrate+=('80')
+                arg_mixdown+=('mono')
+            else
+                echo >&2 'Unknown audio type:'
+                echo >&2 "quality=$quality"
+                echo >&2 "channel=$channel"
+                echo >&2 "language=$language"
+                exit 1
+            fi
         else
             echo >&2 'Unknown audio type:'
             echo >&2 "quality=$quality"
@@ -56,13 +87,13 @@ function get_audio_arguments {
             echo >&2 "language=$language"
             exit 1
         fi
-    else
-        echo >&2 'Unknown audio type:'
-        echo >&2 "quality=$quality"
-        echo >&2 "channel=$channel"
-        echo >&2 "language=$language"
-        exit 1
-    fi
+    done < <( get_audio_streams "$input" )
+
+    echo '--audio' $(comma_separated "${arg_channel[@]}")
+    echo '--ab' $(comma_separated "${arg_bitrate[@]}")
+    echo '--mixdown' $(comma_separated "${arg_mixdown[@]}")
+    echo '--arate' $(comma_separated "${arg_rate[@]}")
+    echo '--aencoder' $(comma_separated "${arg_encoder[@]}")
 }
 
 function media_convert_video {

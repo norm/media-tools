@@ -51,6 +51,12 @@ function download_sample_files {
     [ ! -f tests/source/mp3.divx ] \
         && curl -o tests/source/mp3.divx \
                 http://trailers.divx.com/divx_prod/profiles/Helicopter_DivXHT_ASP.divx
+
+    # multiple streams
+    # found via http://www.divx.com/en/devices/profiles/video
+    [ ! -f tests/source/multiple.divx ] \
+        && curl -o tests/source/multiple.divx \
+                http://trailers.divx.com/divx_prod/divx_plus_hd_showcase/BigBuckBunny_DivX_HD720p_ASP.divx
 }
 
 function download_posters {
