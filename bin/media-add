@@ -38,6 +38,8 @@ function convert_and_add_tv {
     [ -f "$dir/poster.png" ] && media-set-poster "$output" "$dir/poster.png"
 
     path=$( eval media-install "$output" )
+    [ -z "$IGNORE_ITUNES" ] \
+        && media-itunes-add "$path"
 
     clean_up_converted "$dir" "$video"
 }

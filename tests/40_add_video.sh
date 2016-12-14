@@ -13,6 +13,7 @@ function is_empty {
 
 
 @test "adds a TV show" {
+    export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )
 
     # there should be nothing before we begin

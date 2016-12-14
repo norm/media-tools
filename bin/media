@@ -5,6 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 
 # default configuration
+IGNORE_ITUNES=
 CONVERT_DIR=/tmp
 TRASH_DIR=
 TV_BASE=/files/tv
@@ -14,6 +15,7 @@ TV_BASE=/files/tv
     && source "$MEDIA_CONFIG"
 
 # override with env, which takes precedence over file
+IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
 TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
@@ -26,6 +28,7 @@ function media_error {
 
 function show_configuration {
     echo "CONVERT_DIR=$CONVERT_DIR"
+    echo "IGNORE_ITUNES=$IGNORE_ITUNES"
     echo "TRASH_DIR=$TRASH_DIR"
     echo "TV_BASE=$TV_BASE"
 }
