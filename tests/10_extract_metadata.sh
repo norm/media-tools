@@ -62,7 +62,7 @@
 }
 
 @test "otherwise does nothing" {
-    metadata=$( media-extract-metadata "what am I?" )
+    metadata="$( media-extract-metadata "what am I?" )"
     echo "$metadata"
     [ "$metadata" == "Error: unknown format 'what am I?'" ]
 }

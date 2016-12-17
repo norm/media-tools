@@ -3,12 +3,13 @@
 source bin/media
 
 function count_files_in_dir {
-    find "$1" -type f | wc -l | tr -d ' '
+    find "$1" -type f \
+        | wc -l \
+        | tr -d ' '
 }
 
 function is_empty {
-    local count=$( count_files_in_dir "$1" )
-    [ $count = 0 ]
+    [ "$( count_files_in_dir "$1" )" = 0 ]
 }
 
 
@@ -41,7 +42,7 @@ function is_empty {
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )
     export MEDIA_TRASH_DIR=$( mktemp -d )
-    local convert_dir=$( mktemp -d )
+    local -r convert_dir=$( mktemp -d )
 
     # there should be nothing before we begin
     is_empty "$MEDIA_TV_BASE"

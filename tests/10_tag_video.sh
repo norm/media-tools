@@ -3,8 +3,16 @@
 source bin/media
 
 
+function count_atoms_in_file {
+    local -r input="$1"
+
+    AtomicParsley "$input" -t \
+        | wc -l \
+        | tr -d ' '
+}
+
 @test "adds tags to video files" {
-    local tempfile=$( mktemp )
+    local -r tempfile=$( mktemp )
     local -a metadata
 
     cp tests/source/tiny.mp4 "$tempfile"
@@ -27,5 +35,5 @@ source bin/media
     # this is not automatically applied, even though it could be deduced
     [ "$(media_lookup_atom "$tempfile" stik)" == '' ]
 
-    [ $(AtomicParsley "$tempfile" -t | wc -l ) == 5 ]
+    [ "$(count_atoms_in_file "$tempfile" )" == 5 ]
 }

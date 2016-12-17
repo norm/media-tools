@@ -2,6 +2,7 @@
 
 set -e
 
+# shellcheck source=/dev/null
 source $(which media)
 summary_line "$*" 'extract metadata from a directory name'
 
@@ -47,5 +48,6 @@ function media_extract_metadata {
         }
 ";
 }
+
 
 media_extract_metadata "$1"

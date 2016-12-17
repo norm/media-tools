@@ -2,13 +2,14 @@
 
 set -e
 
-source $(which media)
+# shellcheck source=/dev/null
+source "$(which media)"
 summary_line "$*" 'convert and add new media to iTunes library'
 
 
 function clean_up_converted {
-    local dir="$1"
-    local video="$2"
+    local -r dir="$1"
+    local -r video="$2"
 
     if [ -n "$TRASH_DIR" ]; then
         mkdir -p "$TRASH_DIR"
@@ -26,15 +27,15 @@ function clean_up_converted {
 }
 
 function convert_and_add_tv {
-    local dir="$1"
-    local video="$2"
+    local -r dir="$1"
+    local -r video="$2"
 
-    local file=$( basename "$video" )
-    local output="${CONVERT_DIR}/media_conversion_${file%.*}.m4v"
+    local -r file=$( basename "$video" )
+    local -r output="${CONVERT_DIR}/media_conversion_${file%.*}.m4v"
 
     media-convert-video "$video" "$output"
 
-    eval media-tag-video "$output" $( media-extract-metadata "$dir" )
+    eval media-tag-video "$output" "$( media-extract-metadata "$dir" )"
 
     [ -f "$dir/poster.jpg" ] && media-set-poster "$output" "$dir/poster.jpg"
     [ -f "$dir/poster.png" ] && media-set-poster "$output" "$dir/poster.png"
@@ -46,13 +47,16 @@ function convert_and_add_tv {
     clean_up_converted "$dir" "$video"
 }
 
+
 for directory in "$@"; do
     video=$(
+        # shellcheck disable=SC2012
         ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
             2>/dev/null \
                 || true     # not all files will exist, not an error
     )
     count=$(
+        # shellcheck disable=SC2012
         ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
             2>/dev/null \
                 | wc -l \
@@ -60,11 +64,11 @@ for directory in "$@"; do
     )
 
     case $count in
-        0)  media_error \"$directory\" has no known video content.
+        0)  media_error "\"$directory\" has no known video content."
             ;;
         1)  convert_and_add_tv "$directory" "$video"
             ;;
-        *)  media_error \"$directory\" has multiple video files.
+        *)  media_error "\"$directory\" has multiple video files."
             ;;
     esac
 done

@@ -11,6 +11,7 @@ TRASH_DIR=
 TV_BASE=/files/tv
 
 # override config with file
+# shellcheck source=/dev/null
 [ -n "$MEDIA_CONFIG" ] \
     && source "$MEDIA_CONFIG"
 
@@ -22,7 +23,7 @@ TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
 
 
 function media_error {
-    printf "${bold}${red}*** ${*}${reset}\n"
+    printf "${bold}${red}*** %s${reset}\n" "$*"
     exit 1
 }
 
@@ -34,8 +35,8 @@ function show_configuration {
 }
 
 function media_lookup_atom {
-    local file="$1"
-    local atom="$2"
+    local -r file="$1"
+    local -r atom="$2"
 
     # the perl invocation removes a unicode byte order mark character, which
     # is probably useful, but makes it really hard to grep things consistently
@@ -54,20 +55,20 @@ function summary_line {
 
 function list_available_commands {
     for command in $( compgen -c | grep '^media-' ); do
-        printf '%16s  ' $( echo $command | cut -c7- )
+        printf '%16s  ' "$( echo "$command" | cut -c7- )"
         $command --summary
     done
 }
 
 function run_command {
-    local command="media-$1"
+    local -r command="media-$1"
     shift
 
     $command "$@"
 }
 
 
-if [ "$0" = "$BASH_SOURCE" ]; then
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # being run as a command, not sourced by another script
     case "$1" in
         ''|-h|--help)

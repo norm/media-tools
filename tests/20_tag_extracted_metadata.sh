@@ -4,8 +4,8 @@ source bin/media
 
 
 @test "adds tags to video files" {
-    local episode="House - 1x01 - Pilot"
-    local tempfile=$( mktemp )
+    local -r episode="House - 1x01 - Pilot"
+    local -r tempfile=$( mktemp )
     local -a metadata
 
     cp tests/source/tiny.mp4 "$tempfile"

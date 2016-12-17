@@ -2,6 +2,7 @@
 
 set -e
 
+# shellcheck source=/dev/null
 source $(which media)
 summary_line "$*" 'convert a source video file to m4v'
 
@@ -14,7 +15,7 @@ function get_audio_streams {
 }
 
 function get_stream_keywords {
-    local stream="$1"
+    local -r stream="$1"
 
     echo "$stream" | perl -ne '
         s{
@@ -30,12 +31,12 @@ function get_stream_keywords {
 }
 
 function comma_separated {
-    local IFS=","
+    local -r IFS=","
     echo "$*"
 }
 
 function get_audio_arguments {
-    local input="$1"
+    local -r input="$1"
 
     # TODO
     # filter language (only English/unknown, French/unknown, etc)
@@ -93,17 +94,17 @@ function get_audio_arguments {
         fi
     done < <( get_audio_streams "$input" )
 
-    echo '--audio' $(comma_separated "${arg_channel[@]}")
-    echo '--ab' $(comma_separated "${arg_bitrate[@]}")
-    echo '--mixdown' $(comma_separated "${arg_mixdown[@]}")
-    echo '--arate' $(comma_separated "${arg_rate[@]}")
-    echo '--aencoder' $(comma_separated "${arg_encoder[@]}")
+    echo '--audio' "$(comma_separated "${arg_channel[@]}")"
+    echo '--ab' "$(comma_separated "${arg_bitrate[@]}")"
+    echo '--mixdown' "$(comma_separated "${arg_mixdown[@]}")"
+    echo '--arate' "$(comma_separated "${arg_rate[@]}")"
+    echo '--aencoder' "$(comma_separated "${arg_encoder[@]}")"
 }
 
 function media_convert_video {
-    local input="$1"
-    local output="$2"
-    local track="${3:-1}"
+    local -r input="$1"
+    local -r output="$2"
+    local -r track="${3:-1}"
 
     local -a handbrake_args
 
@@ -150,6 +151,6 @@ function media_convert_video {
 }
 
 
-if [ "$0" = "$BASH_SOURCE" ]; then
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     media_convert_video "$@"
 fi

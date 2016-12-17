@@ -2,26 +2,28 @@
 
 set -e
 
+# shellcheck source=/dev/null
 source $(which media)
 summary_line "$*" 'add a file to the iTunes library'
 
 
 function get_absolute_path {
-    local dir=$( dirname "$1" )
-    local file=$( basename "$1" )
-    local realdir=$( cd "$dir" && pwd )
+    local -r dir="$( dirname "$1" )"
+    local -r file="$( basename "$1" )"
+    local -r realdir="$( cd "$dir" && pwd )"
 
     echo "$realdir/$file"
 }
 
 function add_to_itunes {
-    file="$1"
+    local -r file="$1"
 
-    local fullpath=$( get_absolute_path "$file" | sed -e 's/"/\\"/g' )
+    local -r fullpath="$( get_absolute_path "$file" | sed -e 's/"/\\"/g' )"
 
     osascript <<EOF
         tell application "iTunes" to add POSIX file "$fullpath" to playlist "Library" of source "Library"
 EOF
 }
+
 
 add_to_itunes "$@"

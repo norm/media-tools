@@ -16,26 +16,18 @@ function get_video_metadata {
 }
 
 function compare_output_size {
-    local source_fact
-    local output_fact
+    local -r source_fact=$( awk '/size/ { print $3 }' "$SOURCE_METADATA" )
+    local -r output_fact=$( awk '/size/ { print $3 }' "$OUTPUT_METADATA" )
 
     # conversion should keep size intact
-    source_fact=$( awk '/size/ { print $3 }' "$SOURCE_METADATA" )
-    output_fact=$( awk '/size/ { print $3 }' "$OUTPUT_METADATA" )
-    echo "source_fact='$source_fact'"
-    echo "output_fact='$output_fact'"
     [ -n "$source_fact" -a "$source_fact" == "$output_fact" ]
 }
 
 function compare_output_duration {
-    local source_fact
-    local output_fact
+    local -r source_fact=$( awk '/duration/ { print $3 }' "$SOURCE_METADATA" )
+    local -r output_fact=$( awk '/duration/ { print $3 }' "$OUTPUT_METADATA" )
 
     # conversion should keep duration intact
-    source_fact=$( awk '/duration/ { print $3 }' "$SOURCE_METADATA" )
-    output_fact=$( awk '/duration/ { print $3 }' "$OUTPUT_METADATA" )
-    echo "source_fact='$source_fact'"
-    echo "output_fact='$output_fact'"
     [ -n "$source_fact" -a "$source_fact" == "$output_fact" ]
 }
 

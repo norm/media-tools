@@ -2,12 +2,13 @@
 
 set -e
 
+# shellcheck source=/dev/null
 source $(which media)
 summary_line "$*" 'add metadata to a video file'
 
 
 function media_tag_video {
-    local file="$1"
+    local -r file="$1"
     shift
 
     local atomic_args=()
@@ -28,9 +29,9 @@ function media_tag_video {
         esac
     done
 
-    if [ -n "$season" -a -n "$episode" ]; then
-        episode=${episode##0}
-        episode_id=$( printf "%dx%02d" $season $episode )
+    if [ -n "$season" ] && [ -n "$episode" ]; then
+        episode="${episode##0}"
+        episode_id="$( printf "%dx%02d" "$season" "$episode" )"
         atomic_args+=("--TVEpisode=$episode_id")
     fi
 
@@ -39,5 +40,6 @@ function media_tag_video {
         --overWrite         \
         "${atomic_args[@]}"
 }
+
 
 media_tag_video "$@"

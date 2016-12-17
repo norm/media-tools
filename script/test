@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 blue="\e[34m"
 reset="\e[0m"
@@ -8,10 +8,14 @@ export PATH=./bin:$PATH
 
 function run_tests {
     for test_script in tests/*.sh; do
-        printf "${blue}-- $test_script${reset}\n"
-        bats --tap $test_script
+        printf "${blue}-- %s${reset}\n" "$test_script"
+        bats --tap "$test_script"
         echo ''
     done
+}
+
+function check_syntax {
+    shellcheck bin/* script/*
 }
 
 function download_sample_files {
@@ -79,3 +83,4 @@ download_sample_files
 download_posters
 copy_files_to_specific_locations
 run_tests
+check_syntax

@@ -2,6 +2,7 @@
 
 set -e
 
+# shellcheck source=/dev/null
 source $(which media)
 summary_line "$*" 'file new media in the right place'
 
@@ -24,20 +25,21 @@ function media_install {
 }
 
 function media_install_tv {
-    local file="$1"
+    local -r file="$1"
 
-    local series=$( media_lookup_atom "$file" tvsh )
-    local season=$( media_lookup_atom "$file" tvsn )
-    local episode=$( printf '%02d' $( media_lookup_atom "$file" tves ) )
-    local title=$( media_lookup_atom "$file" ©nam )
+    local -r series="$( media_lookup_atom "$file" tvsh )"
+    local -r season="$( media_lookup_atom "$file" tvsn )"
+    local -r episode="$( printf '%02d' "$( media_lookup_atom "$file" tves )" )"
+    local -r title="$( media_lookup_atom "$file" ©nam )"
     local destination
 
     destination="${TV_BASE}/$series/Season $season/$episode $title.m4v"
-    destdir=$( dirname "$destination" )
+    destdir="$( dirname "$destination" )"
     mkdir -p "$destdir"
     mv "$file" "$destination"
 
     echo "$destination"
 }
+
 
 media_install "$@"

@@ -4,7 +4,7 @@ source bin/media
 
 
 @test "add one poster" {
-    local source=$( mktemp )
+    local -r source="$( mktemp )"
 
     cp tests/source/tiny.mp4 "$source"
     [ "$(media_lookup_atom "$source" covr)" == '' ]
@@ -16,7 +16,7 @@ source bin/media
 }
 
 @test "add two posters" {
-    local source=$( mktemp )
+    local -r source=$( mktemp )
 
     cp tests/source/tiny.mp4 "$source"
     [ "$(media_lookup_atom "$source" covr)" == '' ]
