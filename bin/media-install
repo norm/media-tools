@@ -31,13 +31,19 @@ function media_install_tv {
     local -r season="$( media_lookup_atom "$file" tvsn )"
     local -r episode="$( printf '%02d' "$( media_lookup_atom "$file" tves )" )"
     local -r title="$( media_lookup_atom "$file" ©nam )"
+    local -r dest_dir="${TV_BASE}/$series/Season $season/"
     local destination
+    local increment
 
-    destination="${TV_BASE}/$series/Season $season/$episode $title.m4v"
-    destdir="$( dirname "$destination" )"
-    mkdir -p "$destdir"
+    mkdir -p "$dest_dir"
+
+    destination="${dest_dir}/$episode $title.m4v"
+    while [ -f "$destination" ]; do
+        ((increment++))
+        destination="${dest_dir}/$episode $title.$increment.m4v"
+    done
+
     mv "$file" "$destination"
-
     echo "$destination"
 }
 
