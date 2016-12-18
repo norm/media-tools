@@ -8,14 +8,22 @@ summary_line "$*" 'extract metadata from a directory name'
 
 
 function media_extract_metadata {
+    local escaped
+
+    escaped="$(
+        echo "$1" \
+            | sed -e 's/\$/\\$/' -e 's/@/\\@/'
+    )"
+
     perl -E "
         sub quote_string {
             my \$string = shift;
+            \$string =~ s/\\\$/\\\\\\\$/g;
             \$string =~ s/\"/\\\\\"/g;
             return qq(\"\$string\");
         }
 
-        my \$extract = qq($1);
+        my \$extract = qq($escaped);
 
         # strip trailing slashes
         \$extract =~ s{/$}{};

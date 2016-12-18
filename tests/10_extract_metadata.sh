@@ -61,6 +61,26 @@
     [ "${metadata[4]}" == '--stik=TV Show' ]
 }
 
+@test "extracts when perl array symbols exist" {
+    local -a metadata
+    eval metadata=( $( media-extract-metadata "Show - 1x01 - @Email" ) )
+    [ "${metadata[3]}" == '--title=@Email' ]
+}
+
+@test "extracts when perl hash symbols exist" {
+    local -a metadata
+    eval metadata=( $( media-extract-metadata "Show - 1x01 - %Percent" ) )
+    [ "${metadata[3]}" == '--title=%Percent' ]
+}
+
+@test "extracts when perl scalar symbols exist" {
+    local -a metadata
+    eval metadata=( $( media-extract-metadata 'Show - 1x01 - $Money' ) )
+    echo META="${metadata[@]}"
+    echo META="${metadata[3]}"
+    [ "${metadata[3]}" == '--title=$Money' ]
+}
+
 @test "otherwise does nothing" {
     metadata="$( media-extract-metadata "what am I?" )"
     echo "$metadata"
