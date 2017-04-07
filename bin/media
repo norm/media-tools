@@ -46,6 +46,16 @@ function media_lookup_atom {
         | cut -c23-
 }
 
+function extract_track_metadata {
+    local -r track="$1"
+
+    awk "/^\+ title ${track}:/{flag=1;next} /^\+ title /{flag=0} flag"
+}
+
+function extract_audio_tracks {
+    awk "/^  \+ audio tracks:/{flag=1;next} /^  \+/{flag=0} flag"
+}
+
 function summary_line {
     if [ "$1" = '--summary' ]; then
         echo "$2"

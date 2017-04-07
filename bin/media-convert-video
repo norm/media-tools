@@ -8,10 +8,12 @@ summary_line "$*" 'convert a source video file to m4v'
 
 
 function get_audio_streams {
-    local input="$1"
+    local -r input="$1"
+    local -r track="$2"
 
     HandBrakeCLI -i "$input" -t0 2>&1 \
-        | awk '/audio tracks/{flag=1; next} !/    \+ /{flag=0} flag'
+        | extract_track_metadata "$track" \
+        | extract_audio_tracks
 }
 
 function get_stream_keywords {
@@ -37,6 +39,7 @@ function comma_separated {
 
 function get_audio_arguments {
     local -r input="$1"
+    local -r track="${2:-1}"
 
     # TODO
     # filter language (only English/unknown, French/unknown, etc)
@@ -92,7 +95,7 @@ function get_audio_arguments {
             echo >&2 "language=$language"
             exit 1
         fi
-    done < <( get_audio_streams "$input" )
+    done < <( get_audio_streams "$input" "$track" )
 
     echo '--audio' "$(comma_separated "${arg_channel[@]}")"
     echo '--ab' "$(comma_separated "${arg_bitrate[@]}")"
@@ -108,7 +111,7 @@ function media_convert_video {
 
     local -a handbrake_args
 
-    handbrake_args+=($( get_audio_arguments "$input" ))
+    handbrake_args+=($( get_audio_arguments "$input" "$track" ))
 
     # no more than 1080p
     handbrake_args+=('--maxWidth' '1920')
