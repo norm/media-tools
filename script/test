@@ -16,7 +16,7 @@ fi
 function run_tests {
     for test_script in "${run_tests[@]}"; do
         printf "${blue}-- %s${reset}\n" "$test_script"
-        bats --tap "$test_script"
+        bats "$test_script"
         echo ''
     done
 }
