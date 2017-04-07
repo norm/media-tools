@@ -7,7 +7,7 @@ source $(which media)
 summary_line "$*" 'extract metadata from a directory name'
 
 
-function media_extract_metadata {
+function extract_metadata_from_directory_name {
     local escaped
 
     escaped="$(
@@ -57,5 +57,31 @@ function media_extract_metadata {
 ";
 }
 
+function extract_metadata_from_file {
+    local -r dir="$1"
+    local -r track="$2"
 
-media_extract_metadata "$1"
+    local -r series=$( config_key "$dir/metadata.conf" series "$track" )
+    local -r season=$( config_key "$dir/metadata.conf" season "$track" )
+    local -r episode=$( config_key "$dir/metadata.conf" episode "$track" )
+    local -r title=$( config_key "$dir/metadata.conf" title "$track" )
+
+    # FIXME
+    # shellcheck disable=SC2166
+    if [ -n "$series" -a -n "$season" -a -n "$episode" -a -n "$title" ]; then
+        echo "--TVShowName=\"$series\"" \
+             "--TVSeasonNum=$season" \
+             "--TVEpisodeNum=$episode" \
+             "--title=\"$title\"" \
+             "--stik=\"TV Show\""
+    else
+        echo "Error: unknown metadata in '$1/metadata.conf'"
+        exit 1
+    fi
+}
+
+if [ -f "$1/metadata.conf" ]; then
+    extract_metadata_from_file "$@"
+else
+    extract_metadata_from_directory_name "$1"
+fi

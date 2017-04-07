@@ -81,6 +81,30 @@
     [ "${metadata[3]}" == '--title=$Money' ]
 }
 
+@test "extracts using a config file if present" {
+    eval metadata=( $( media-extract-metadata tests/config ) )
+    [ "${metadata[0]}" == '--TVShowName=House' ]
+    [ "${metadata[1]}" == '--TVSeasonNum=2' ]
+    [ "${metadata[2]}" == '--TVEpisodeNum=23' ]
+    [ "${metadata[3]}" == "--title=Who's Your Daddy?" ]
+    [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
+@test "extracts using the config file in precedence to the dir name" {
+    local -r source_dir="$( mktemp -d )"
+    local -r source="$source_dir/House - 1x01 - Pilot"
+
+    mkdir "$source"
+    cp tests/config/metadata.conf "$source/metadata.conf"
+
+    eval metadata=( $( media-extract-metadata "$source" ) )
+    [ "${metadata[0]}" == '--TVShowName=House' ]
+    [ "${metadata[1]}" == '--TVSeasonNum=2' ]
+    [ "${metadata[2]}" == '--TVEpisodeNum=23' ]
+    [ "${metadata[3]}" == "--title=Who's Your Daddy?" ]
+    [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
 @test "otherwise does nothing" {
     metadata="$( media-extract-metadata "what am I?" )"
     echo "$metadata"

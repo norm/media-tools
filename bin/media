@@ -27,6 +27,21 @@ function media_error {
     exit 1
 }
 
+function config_key {
+    local -r filename="$1"
+    local -r key="$2"
+    local -r section="${3:-____}"
+
+    awk -F= "
+            NR==1 { p=1 }
+            /^\[/ { p=0 }
+            /^\[${section}\]/ { p=1 }
+            p==1 && /^ *${key} *=/ { print \$2 }
+        " "$filename" \
+            | sed -e 's/^ *//' \
+            | tail -1
+}
+
 function show_configuration {
     echo "CONVERT_DIR=$CONVERT_DIR"
     echo "IGNORE_ITUNES=$IGNORE_ITUNES"

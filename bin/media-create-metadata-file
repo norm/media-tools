@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'create metadata file from video content'
+
+HANDBRAKE_OUTPUT=$( mktemp )
+function cleanup {
+    rm -f $HANDBRAKE_OUTPUT
+}
+trap cleanup EXIT
+
+
+HandBrakeCLI -t0 -i "$*" >$HANDBRAKE_OUTPUT 2>&1
+titles=$( cat $HANDBRAKE_OUTPUT | grep "^\+ title " | wc -l | tr -d ' ')
+
+echo "series = REPLACE_ME"
+echo "season = REPLACE_ME"
+
+if [ "$titles" == 1 ]; then
+    echo "episode = REPLACE_ME"
+    echo "title = REPLACE_ME"
+else
+    echo ""
+    for title in $(seq 1 $titles); do
+        echo "[$title]"
+        echo "    episode = REPLACE_ME"
+        echo "    title = REPLACE_ME"
+        echo ""
+    done
+fi
