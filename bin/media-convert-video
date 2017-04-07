@@ -19,13 +19,24 @@ function get_audio_streams {
 function get_stream_keywords {
     local -r stream="$1"
 
+    # format:
+    # + 1, English (AC3) (2.0 ch) (Dolby Surround) (iso639-2: eng), 48000Hz, 192000bps
+    # (annoyingly, the encoding name can appear before or after the channels)
     echo "$stream" | perl -ne '
         s{
             ^ .*
-            \+ \s+ (\d+), .*
-            \( (.*?) \) \s+
-            \( (.*?) \s+ ch \) \s+
-            \( iso639-2: \s+ (\w+) \)
+            \+ \s+ (\d+), .*?               # 1: stream number and lang name
+            \( (.*?) \) \s+                 # 2: encoding
+            (?:                             # either...
+                (?: \( [^)]+ \) \s+ )?      #   encoding name (optional)
+                \( (.*?) \s+ ch \) \s+      #  3: channels
+
+                |                           # or...
+
+                \( (.*?) \s+ ch \) \s+      #   3: channels
+                (?: \( [^)]+ \) \s+ )?      #   encoding name (optional)
+            )
+            \( iso639-2: \s+ (\w+) \)       # 4: language code
             .* $
         }{\1 \2 \3 \4}x;
         print;
@@ -104,46 +115,82 @@ function get_audio_arguments {
     echo '--aencoder' "$(comma_separated "${arg_encoder[@]}")"
 }
 
+function testing_handbrake_args {
+    # low quality == faster
+    echo '--quality' '55'
+    echo '--x264-preset' 'ultrafast'
+    echo '--h264-profile' 'baseline'
+}
+
+function small_video_dimensions {
+    # small output == faster
+    echo '--maxWidth' '320'
+    echo '--maxHeight' '240'
+}
+
+function shorter_encode {
+    echo '--chapters' '1'
+    echo '--start-at' 'duration:0'
+    echo '--stop-at' 'duration:60'
+}
+
+function normal_handbrake_args {
+    # highest output is 1080p
+    echo '--maxWidth' '1920'
+    echo '--maxHeight' '1080'
+
+    # prefer slower transforms for higher quality output
+    echo '--quality' '22'
+    echo '--x264-preset' 'slow'
+    echo '--h264-profile' 'high'
+    echo '--h264-level' '4.1'
+}
+
+function get_handbrake_args {
+    get_audio_arguments "$input" "$track"
+
+    # loose anamorphic pictures
+    echo '--loose-anamorphic'
+    echo '--modulus' '2'
+
+    # auto crop detection is sometimes wrong, so never crop
+    echo '--crop' '0:0:0:0'
+
+    # deinterlace if needed
+    echo '--decomb' 'fast'
+
+    # use source frame rate, except clip at 30
+    echo '--rate' '30'
+    echo '--pfr'
+
+    # x264 encoded mp4 files
+    echo '--format' 'mp4'
+    echo '--encoder' 'x264'
+    echo '--encopts' 'b-adapt=2'
+
+    # preserve chapter markers if in source
+    echo '--markers'
+
+    if [ -n "$MEDIA_TESTING" ]; then
+        testing_handbrake_args
+        if [[ "$MEDIA_TESTING" =~ 'short' ]]; then
+            shorter_encode
+        fi
+        if [[ "$MEDIA_TESTING" =~ 'small' ]]; then
+            small_video_dimensions
+        fi
+    else
+        normal_handbrake_args
+    fi
+
+}
+
 function media_convert_video {
     local -r input="$1"
     local -r output="$2"
     local -r track="${3:-1}"
 
-    local -a handbrake_args
-
-    handbrake_args+=($( get_audio_arguments "$input" "$track" ))
-
-    # no more than 1080p
-    handbrake_args+=('--maxWidth' '1920')
-    handbrake_args+=('--maxHeight' '1080')
-
-    # loose anamorphic pictures
-    handbrake_args+=('--loose-anamorphic')
-    handbrake_args+=('--modulus' '2')
-
-    # auto crop detection is sometimes wrong, so never crop
-    handbrake_args+=('--crop' '0:0:0:0')
-
-    # deinterlace if needed
-    handbrake_args+=('--decomb' 'fast')
-
-    # use source frame rate, except clip at 30
-    handbrake_args+=('--rate' '30')
-    handbrake_args+=('--pfr')
-
-    # prefer slower transforms for higher quality output
-    handbrake_args+=('--quality' '22')
-    handbrake_args+=('--x264-preset' 'slow')
-    handbrake_args+=('--h264-profile' 'high')
-    handbrake_args+=('--h264-level' '4.1')
-
-    # x264 encoded mp4 files
-    handbrake_args+=('--format' 'mp4')
-    handbrake_args+=('--encoder' 'x264')
-    handbrake_args+=('--encopts' 'b-adapt=2')
-
-    # preserve chapter markers if in source
-    handbrake_args+=('--markers')
+    local -a handbrake_args=( $(get_handbrake_args "$input" "$track") )
 
     HandBrakeCLI \
         "${handbrake_args[@]}"      \

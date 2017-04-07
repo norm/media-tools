@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 source bin/media
+export MEDIA_TESTING=1
 
 
 function setup {
@@ -37,6 +38,22 @@ function compare_metadata_fact {
     [ -n "$source_fact" -a "$source_fact" == "$output_fact" ]
 }
 
+function compare_audio_tracks {
+    local -r source_tracks=$(
+        cat "$SOURCE_METADATA" \
+            | extract_track_metadata "$TRACK" \
+            | extract_audio_tracks
+    )
+    local -r output_tracks=$(
+        cat "$OUTPUT_METADATA" \
+            | extract_track_metadata 1 \
+            | extract_audio_tracks
+    )
+
+    [ "$source_tracks" == "$output_tracks" ]
+}
+
+
 @test "converts 720p AC3" {
     SOURCE_FILE="tests/source/720p-ac3.vob"
     TRACK=1
@@ -45,4 +62,16 @@ function compare_metadata_fact {
     capture_metadata
     compare_metadata_fact 'size'
     compare_metadata_fact 'duration'
+    compare_audio_tracks
+}
+
+@test "converts one track in a DVD" {
+    SOURCE_FILE="tests/source/BUFFY_S4D3"
+    TRACK=19
+
+    run media-convert-video "$SOURCE_FILE" "$OUTPUT_FILE" "$TRACK"
+    capture_metadata
+    compare_metadata_fact 'size'
+    compare_metadata_fact 'duration'
+    compare_audio_tracks
 }

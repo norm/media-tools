@@ -1,24 +1,7 @@
 #!/usr/bin/env bats
 
 source bin/media
-
-function count_atoms_in_file {
-    local -r input="$1"
-
-    AtomicParsley "$input" -t \
-        | wc -l \
-        | tr -d ' '
-}
-
-function count_files_in_dir {
-    find "$1" -type f \
-        | wc -l \
-        | tr -d ' '
-}
-
-function is_empty {
-    [ "$( count_files_in_dir "$1" )" = 0 ]
-}
+source tests/lib.sh
 
 
 @test "adds a TV show" {
@@ -26,7 +9,7 @@ function is_empty {
     export MEDIA_TV_BASE=$( mktemp -d )
 
     # there should be nothing before we begin
-    is_empty "$MEDIA_TV_BASE"
+    dir_is_empty "$MEDIA_TV_BASE"
 
     media-add "tests/process/House - 1x01 - Pilot"
 
@@ -53,9 +36,9 @@ function is_empty {
     local -r convert_dir=$( mktemp -d )
 
     # there should be nothing before we begin
-    is_empty "$MEDIA_TV_BASE"
-    is_empty "$MEDIA_TRASH_DIR"
-    is_empty "$convert_dir"
+    dir_is_empty "$MEDIA_TV_BASE"
+    dir_is_empty "$MEDIA_TRASH_DIR"
+    dir_is_empty "$convert_dir"
 
     local source="$convert_dir/House - 1x01 - Pilot"
     mkdir "$source"
@@ -67,7 +50,7 @@ function is_empty {
 
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
     [ $( count_files_in_dir "$MEDIA_TRASH_DIR" ) = 1 ]
-    is_empty "$convert_dir"
+    dir_is_empty "$convert_dir"
 
     local installed="$MEDIA_TV_BASE/House/Season 1/01 Pilot.m4v"
     [ -f "$installed" ]
@@ -87,7 +70,7 @@ function is_empty {
     export MEDIA_TV_BASE=$( mktemp -d )
 
     # there should be nothing before we begin
-    is_empty "$MEDIA_TV_BASE"
+    dir_is_empty "$MEDIA_TV_BASE"
 
     # copy a file to the expected destination
     local -r install_dir="$MEDIA_TV_BASE/House/Season 1"

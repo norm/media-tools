@@ -26,7 +26,74 @@ function clean_up_converted {
     fi
 }
 
-function convert_and_add_tv {
+function create_metadata_file_if_missing {
+    local -r directory="$1"
+    local -r metadata="$directory/metadata.conf"
+
+    if [ ! -f "$metadata" ]; then
+        # create a metadata.conf file for instructing `media` what 
+        # the TV shows inside the DVD are
+        media-create-metadata-file "$directory" > "$metadata"
+        echo "Created '$metadata'."
+        echo "Edit this and re-run."
+        exit
+    fi
+}
+
+function abort_if_metadata_unedited {
+    local -r metadata="$1"
+
+    local -r tokens=$(
+        grep -v '^ *#' "$metadata" \
+            | grep REPLACE_ME
+    )
+
+    if [ -n "$tokens" ]; then
+        echo "'$metadata' has not been filled out; aborting."
+        exit 1
+    fi
+}
+
+function convert_and_add_from_dvd_image {
+    local -r directory="$1"
+    local -r arg_tracks="$2"
+    local -r metadata="$directory/metadata.conf"
+
+    create_metadata_file_if_missing "$directory"
+    abort_if_metadata_unedited "$metadata"
+
+    # default is all tracks, unless -t arg specified
+    if [ -n "$arg_tracks" ]; then
+        tracks="$arg_tracks"
+    else
+        tracks=$( grep '^\[' "$metadata" | sed -e 's/\[//' -e 's/\]//' )
+    fi
+
+    # convert each track
+    for track in $tracks; do
+        local output="${CONVERT_DIR}/media_conversion_dvd${track%.*}.m4v"
+
+        media-convert-video "$directory" "$output" "$track"
+
+        media-extract-metadata "$directory" "$track"
+        eval media-tag-video "$output" "$( 
+                media-extract-metadata "$directory" "$track"
+            )"
+
+        [ -f "$directory/poster.jpg" ] \
+            && media-set-poster "$output" "$directory/poster.jpg"
+        [ -f "$directory/poster.png" ] \
+            && media-set-poster "$output" "$directory/poster.png"
+
+        path=$( eval media-install "$output" )
+
+        if [ -z "$IGNORE_ITUNES" ]; then
+            media-itunes-add "$path"
+        fi
+    done
+}
+
+function convert_and_add_from_directory {
     local -r dir="$1"
     local -r video="$2"
 
@@ -41,34 +108,48 @@ function convert_and_add_tv {
     [ -f "$dir/poster.png" ] && media-set-poster "$output" "$dir/poster.png"
 
     path=$( eval media-install "$output" )
-    [ -z "$IGNORE_ITUNES" ] \
-        && media-itunes-add "$path"
+    if [ -z "$IGNORE_ITUNES" ]; then
+        media-itunes-add "$path"
+    fi
 
     clean_up_converted "$dir" "$video"
 }
 
-
-for directory in "$@"; do
-    video=$(
-        # shellcheck disable=SC2012
-        ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
-            2>/dev/null \
-                || true     # not all files will exist, not an error
-    )
-    count=$(
-        # shellcheck disable=SC2012
-        ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
-            2>/dev/null \
-                | wc -l \
-                | tr -d ' '
-    )
-
-    case $count in
-        0)  media_error "\"$directory\" has no known video content."
-            ;;
-        1)  convert_and_add_tv "$directory" "$video"
-            ;;
-        *)  media_error "\"$directory\" has multiple video files."
+tracks=''
+while getopts "t:" option; do
+    case $option in
+        t)  tracks="$OPTARG"
             ;;
     esac
+done
+shift $(( OPTIND -1 ))
+
+
+for directory in "$@"; do
+    if [ -d "$directory/VIDEO_TS" ]; then
+        convert_and_add_from_dvd_image "$directory" "$tracks"
+    else
+        video=$(
+            # shellcheck disable=SC2012
+            ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
+                2>/dev/null \
+                    || true     # not all files will exist, not an error
+        )
+        count=$(
+            # shellcheck disable=SC2012
+            ls "$directory"/*.{m4v,avi,mkv,mp4,mpg,wmv,vob,m2ts,xvid} \
+                2>/dev/null \
+                    | wc -l \
+                    | tr -d ' '
+        )
+
+        case $count in
+            0)  media_error "\"$directory\" has no known video content."
+                ;;
+            1)  convert_and_add_from_directory "$directory" "$video"
+                ;;
+            *)  media_error "\"$directory\" has multiple video files."
+                ;;
+        esac
+    fi
 done

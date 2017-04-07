@@ -71,3 +71,33 @@ source bin/media-convert-video
     [ "${args[8]}" = '--aencoder' ]
     [ "${args[9]}" = 'ca_aac,copy:ac3' ]
 }
+
+@test "only one title from a DVD" {
+    local -a args=($( get_audio_arguments "tests/source/BUFFY_S4D3" 1 ))
+    echo "${args[@]}"
+    [ "${args[0]}" = '--audio' ]
+    [ "${args[1]}" = '1' ]
+    [ "${args[2]}" = '--ab' ]
+    [ "${args[3]}" = '640' ]
+    [ "${args[4]}" = '--mixdown' ]
+    [ "${args[5]}" = '6ch' ]
+    [ "${args[6]}" = '--arate' ]
+    [ "${args[7]}" = 'Auto' ]
+    [ "${args[8]}" = '--aencoder' ]
+    [ "${args[9]}" = 'copy:ac3' ]
+}
+
+@test "a DVD title with multiple audio streams" {
+    local -a args=($( get_audio_arguments "tests/source/BUFFY_S4D3" 2 ))
+    echo "${args[@]}"
+    [ "${args[0]}" = '--audio' ]
+    [ "${args[1]}" = '1,2' ]
+    [ "${args[2]}" = '--ab' ]
+    [ "${args[3]}" = '640,640' ]
+    [ "${args[4]}" = '--mixdown' ]
+    [ "${args[5]}" = '6ch,6ch' ]
+    [ "${args[6]}" = '--arate' ]
+    [ "${args[7]}" = 'Auto,Auto' ]
+    [ "${args[8]}" = '--aencoder' ]
+    [ "${args[9]}" = 'copy:ac3,copy:ac3' ]
+}

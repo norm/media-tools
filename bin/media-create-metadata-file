@@ -8,26 +8,28 @@ summary_line "$*" 'create metadata file from video content'
 
 HANDBRAKE_OUTPUT=$( mktemp )
 function cleanup {
-    rm -f $HANDBRAKE_OUTPUT
+    rm -f "$HANDBRAKE_OUTPUT"
 }
 trap cleanup EXIT
 
 
-HandBrakeCLI -t0 -i "$*" >$HANDBRAKE_OUTPUT 2>&1
-titles=$( cat $HANDBRAKE_OUTPUT | grep "^\+ title " | wc -l | tr -d ' ')
+HandBrakeCLI -t0 -i "$*" >"$HANDBRAKE_OUTPUT" 2>&1
+titles=($(
+    grep "^\+ title " "$HANDBRAKE_OUTPUT" \
+        | sed -e 's/^. title //' -e 's/://'
+))
 
 echo "series = REPLACE_ME"
 echo "season = REPLACE_ME"
 
-if [ "$titles" == 1 ]; then
+if [ "${#titles[@]}" == 1 ]; then
     echo "episode = REPLACE_ME"
     echo "title = REPLACE_ME"
 else
-    echo ""
-    for title in $(seq 1 $titles); do
+    for title in "${titles[@]}"; do
+        echo ""
         echo "[$title]"
         echo "    episode = REPLACE_ME"
         echo "    title = REPLACE_ME"
-        echo ""
     done
 fi

@@ -105,6 +105,24 @@
     [ "${metadata[4]}" == '--stik=TV Show' ]
 }
 
+@test "doesn't clash later titles with the current title" {
+    # track [1] and track [19] share a first digit, but the
+    # latter's details should not be used for the former
+    local -r source_dir="$( mktemp -d )"
+    local -r source="$source_dir/BUFFY_S4D3"
+
+    mkdir "$source"
+    cp tests/config/buffy_s4d3.conf "$source/metadata.conf"
+
+    eval metadata=( $( media-extract-metadata "$source" 1 ) )
+    echo "** ${metadata[@]}"
+    [ "${metadata[0]}" == '--TVShowName=Buffy the Vampire Slayer' ]
+    [ "${metadata[1]}" == '--TVSeasonNum=4' ]
+    [ "${metadata[2]}" == '--TVEpisodeNum=9' ]
+    [ "${metadata[3]}" == "--title=Something Blue" ]
+    [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
 @test "otherwise does nothing" {
     metadata="$( media-extract-metadata "what am I?" )"
     echo "$metadata"
