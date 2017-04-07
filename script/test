@@ -3,11 +3,18 @@
 blue="\e[34m"
 reset="\e[0m"
 
-export PATH=./bin:$PATH
 
+export PATH="${PWD}/bin:$PATH"
+declare -a run_tests=("$@")
+declare no_syntax=1
+
+if [ -z "${run_tests[0]}" ]; then
+    run_tests=($( echo tests/[0-9]*.sh ))
+    no_syntax=0
+fi
 
 function run_tests {
-    for test_script in tests/*.sh; do
+    for test_script in "${run_tests[@]}"; do
         printf "${blue}-- %s${reset}\n" "$test_script"
         bats --tap "$test_script"
         echo ''
@@ -15,7 +22,8 @@ function run_tests {
 }
 
 function check_syntax {
-    shellcheck bin/* script/*
+    [ "$no_syntax" == 0 ] \
+        && shellcheck bin/media* script/*
 }
 
 function download_sample_files {
