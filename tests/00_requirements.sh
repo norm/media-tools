@@ -6,12 +6,11 @@
 
 @test "HandBrakeCLI is the right version" {
     local version=$(
-        HandBrakeCLI -i /dev/null -t0 2>&1  \
-            | grep ^HandBrake               \
-            | grep -v exited                \
-            | cut -c11-16
+        HandBrakeCLI --version 2>&1 \
+            | grep ^HandBrake \
+            | cut -c11-
     )
-    [ "$version" == '0.10.5' ]
+    [ "$version" == '1.0.7' ]
 }
 
 @test "AtomicParsley is installed" {
