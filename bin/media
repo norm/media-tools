@@ -71,6 +71,10 @@ function extract_audio_tracks {
     awk "/^  \+ audio tracks:/{flag=1;next} /^  \+/{flag=0} flag"
 }
 
+function extract_chapters {
+    awk "/^  \+ chapters:/{flag=1;next} /^  \+/{flag=0} flag"
+}
+
 function summary_line {
     if [ "$1" = '--summary' ]; then
         echo "$2"

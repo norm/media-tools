@@ -29,6 +29,41 @@ else
     for title in "${titles[@]}"; do
         echo ""
         echo "[$title]"
+
+        # shellcheck disable=SC2002
+        cat "$HANDBRAKE_OUTPUT" \
+            | extract_track_metadata "$title" \
+            | grep 'duration:' \
+            | sed -e 's/  \+ /    # /'
+
+        chapters=$(
+            # shellcheck disable=SC2002
+            cat "$HANDBRAKE_OUTPUT" \
+                | extract_track_metadata "$title" \
+                | extract_chapters \
+                | wc -l \
+                | tr -d ' '
+        )
+        [ "$chapters" != '1' ] \
+            && echo "    # chapters: $chapters"
+
+        audio_tracks=$(
+            # shellcheck disable=SC2002
+            cat "$HANDBRAKE_OUTPUT" \
+                | extract_track_metadata "$title" \
+                | extract_audio_tracks \
+                | wc -l \
+                | tr -d ' '
+        )
+        if [ "$audio_tracks" != '1' ]; then
+            echo "    # audio tracks:"
+            # shellcheck disable=SC2002
+            cat "$HANDBRAKE_OUTPUT" \
+                | extract_track_metadata "$title" \
+                | extract_audio_tracks \
+                | sed -e 's/^    \+/    #  /'
+        fi
+
         echo "    episode = REPLACE_ME"
         echo "    title = REPLACE_ME"
     done
