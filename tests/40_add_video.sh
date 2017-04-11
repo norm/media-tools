@@ -29,6 +29,31 @@ source tests/lib.sh
     rm -rf $MEDIA_TV_BASE
 }
 
+@test "works with extended episodes" {
+    export MEDIA_IGNORE_ITUNES=1
+    export MEDIA_TV_BASE=$( mktemp -d )
+
+    # there should be nothing before we begin
+    dir_is_empty "$MEDIA_TV_BASE"
+
+    media-add "tests/process/Brooklyn Nine-Nine - 4x11-12 - Fugitive"
+
+    # media-add should have installed converted TV
+    [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
+
+    local installed="$MEDIA_TV_BASE/Brooklyn Nine-Nine/Season 4/11 Fugitive.m4v"
+    [ -f "$installed" ]
+    [ "$( media_lookup_atom "$installed" tvsh )" = 'Brooklyn Nine-Nine' ]
+    [ "$( media_lookup_atom "$installed" tvsn )" = '4' ]
+    [ "$( media_lookup_atom "$installed" tves )" = '11' ]
+    [ "$( media_lookup_atom "$installed" tven )" = '4x11-12' ]
+    [ "$( media_lookup_atom "$installed" ©nam )" = 'Fugitive' ]
+    [ "$( media_lookup_atom "$installed" stik )" = 'TV Show' ]
+    [ "$( media_lookup_atom "$installed" covr )" = '1 piece of artwork' ]
+
+    rm -rf $MEDIA_TV_BASE
+}
+
 @test "cleans up directories when TRASH_DIR set" {
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )

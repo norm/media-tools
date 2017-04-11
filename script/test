@@ -80,12 +80,18 @@ function download_posters {
             http://is2.mzstatic.com/image/thumb/Video/v4/f6/72/6e/f6726e35-72e3-9cab-d435-3bec128c5ed4/source/600x600bb.jpg
 }
 
-function copy_files_to_specific_locations {
-    mkdir -p "tests/process/House - 1x01 - Pilot"
-    cp tests/source/720p-ac3.vob "tests/process/House - 1x01 - Pilot/house.vob"
-    cp tests/source/tv.jpg       "tests/process/House - 1x01 - Pilot/poster.jpg"
+function setup_conversion_directory {
+    local -r directory="$1"
+
+    mkdir -p "tests/process/$directory"
+    cp tests/source/720p-ac3.vob "tests/process/$directory/episode.vob"
+    cp tests/source/tv.jpg       "tests/process/$directory/poster.jpg"
 }
 
+function copy_files_to_specific_locations {
+    setup_conversion_directory 'House - 1x01 - Pilot'
+    setup_conversion_directory 'Brooklyn Nine-Nine - 4x11-12 - Fugitive'
+}
 
 download_sample_files
 download_posters

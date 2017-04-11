@@ -37,7 +37,7 @@ function extract_metadata_from_directory_name {
             \s+ - \s+
             (?<season> \d+ )
             x
-            (?<episode> \d+ )
+            (?<episode> \d+ (?: -\d+ )? )
             \s+ - \s+
             (?<title> .* )
             $

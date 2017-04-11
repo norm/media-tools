@@ -20,6 +20,16 @@
     [ "${metadata[4]}" == '--stik=TV Show' ]
 }
 
+@test "extracts TV with multiple episodes" {
+    local -a metadata
+    eval metadata=( $( media-extract-metadata "Brooklyn Nine-Nine - 4x11-12 - The Fugitive" ) )
+    [ "${metadata[0]}" == '--TVShowName=Brooklyn Nine-Nine' ]
+    [ "${metadata[1]}" == '--TVSeasonNum=4' ]
+    [ "${metadata[2]}" == '--TVEpisodeNum=11-12' ]
+    [ "${metadata[3]}" == '--title=The Fugitive' ]
+    [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
 @test "extracts TV with shell metacharacters" {
     local -a metadata
     eval metadata=( $( media-extract-metadata "Grey's Anatomy - 2x11 - Owner of a Lonely Heart" ) )

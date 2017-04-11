@@ -31,7 +31,12 @@ function media_tag_video {
 
     if [ -n "$season" ] && [ -n "$episode" ]; then
         episode="${episode##0}"
-        episode_id="$( printf "%dx%02d" "$season" "$episode" )"
+        case "$episode" in
+            ?)      episode_id="$( printf "%dx%02d" "$season" "$episode" )"
+                    ;;
+            *)      episode_id="${season}x${episode}"
+                    ;;
+        esac
         atomic_args+=("--TVEpisode=$episode_id")
     fi
 
