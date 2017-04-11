@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'something something tv episode directory'
+
+function sanitise_for_directory {
+    local directory="$1"
+
+    echo "$directory" \
+        | sed -e 's/\// - /g' -e 's/:/ - /g' \
+        | tr -s ' '
+}
+
+function make_directory {
+    local -r show="$1"
+    local -r season="$2"
+    local -r episode="$3"
+
+    title=$( media-get-episode-title "$show" "$season" "$episode" )
+    # echo "<< $title"
+    title=$( sanitise_for_directory "$title" )
+    # echo ">> $title"
+    [ -z "$title" ] && title='___'
+
+    dir=$(printf "%s - %dx%02d - %s" "$show" "$season" "$episode" "$title")
+    echo "$dir"
+
+    mkdir "$dir"
+
+    # FIXME poster.png?
+    if [ -f "$TV_BASE/$show/Season $season/poster.jpg" ]; then
+      cp "$TV_BASE/$show/Season $season/poster.jpg" "$dir/poster.jpg"
+    elif [ -f "$TV_BASE/$show/poster.jpg" ]; then
+      cp "$TV_BASE/$show/poster.jpg" "$dir/poster.jpg"
+    elif [ -f "$TV_BASE/posters/$show.jpg" ]; then
+      cp "$TV_BASE/posters/$show.jpg" "$dir/poster.jpg"
+    fi
+}
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+    make_directory "$@"
+fi

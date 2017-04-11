@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'lookup the name of a given TV episode'
+
+
+function get_episode_title {
+    local -r show="$1"
+    local -r season="$2"
+    local -r episode="$3"
+    local id
+
+    id=$( lookup_tv_id "$show" )
+
+    if [ -z "$id" ]; then
+        # if no explicit ID, convert the name to a slug
+        id=$(
+            echo "$show" \
+                | sed -e 's/[^[:alnum:]]/-/g' \
+                | tr -s '-' \
+                | tr '[:upper:]' '[:lower:]' \
+                | sed -e 's/-$//'
+        )
+    fi
+
+    # 2>&1 echo "curl -fs https://www.episodate.com/api/show-details?q=${id}"
+    curl -fs "https://www.episodate.com/api/show-details?q=${id}" \
+        | jq -r "
+            .tvShow.episodes[] 
+                | select(.season == $season)
+                | select(.episode == $episode)
+                | .name
+            "
+}
+
+get_episode_title "$@"

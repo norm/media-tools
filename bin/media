@@ -9,6 +9,7 @@ IGNORE_ITUNES=
 CONVERT_DIR=/tmp
 TRASH_DIR=
 TV_BASE=/files/tv
+TV_SHOWS=
 
 # override config with file
 # shellcheck source=/dev/null
@@ -20,6 +21,7 @@ IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
 TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
+TV_SHOWS="${MEDIA_TV_SHOWS:=$TV_SHOWS}"
 
 
 function media_error {
@@ -47,6 +49,7 @@ function show_configuration {
     echo "IGNORE_ITUNES=$IGNORE_ITUNES"
     echo "TRASH_DIR=$TRASH_DIR"
     echo "TV_BASE=$TV_BASE"
+    echo "TV_SHOWS=$TV_SHOWS"
 }
 
 function media_lookup_atom {
@@ -59,6 +62,10 @@ function media_lookup_atom {
         | perl -ne 's/^[^A]+//m; print;'    \
         | grep "Atom .${atom}."             \
         | cut -c23-
+}
+
+function lookup_tv_id {
+    config_key "$TV_SHOWS" "$1"
 }
 
 function extract_track_metadata {
