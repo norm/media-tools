@@ -1,0 +1,41 @@
+have media && {
+    function _pushd {
+        pushd "$1" >/dev/null
+    }
+    function _popd {
+        popd >/dev/null
+    }
+
+    function _tv_series {
+        local base=$( media show-config | awk -F= '/TV_BASE/ { print $2 }' )
+        local IFS=$'\n'
+
+        _pushd "$base"
+        COMPREPLY=( $(compgen -d "${COMP_WORDS[COMP_CWORD]}") )
+        _popd
+    }
+    function _default_filenames {
+        local IFS=$'\n'
+        COMPREPLY=( $(compgen -d "${COMP_WORDS[COMP_CWORD]}") )
+    }
+
+    function _media {
+        local cur="${COMP_WORDS[COMP_CWORD]}"
+
+        case "$COMP_CWORD" in
+            1)  local commands=$(media | awk '{ print $1 }')
+                COMPREPLY=( $(compgen -W "$commands" -- "${cur}") )
+                ;;
+            2)  case "${COMP_WORDS[1]}" in
+                    make-episode-dir)   _tv_series ;;
+                    *)                  _default_filenames ;;
+                esac
+                ;;
+
+            *)  _default_filenames
+                ;;
+        esac
+    }
+
+    complete -o filenames -F _media media
+}
