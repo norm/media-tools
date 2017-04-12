@@ -2,20 +2,30 @@
 
 @test "default configuration" {
     run media show-config
-    [ "${lines[0]}" = "CONVERT_DIR=/tmp" ]
-    [ "${lines[1]}" = "IGNORE_ITUNES=" ]
-    [ "${lines[2]}" = "TRASH_DIR=" ]
-    [ "${lines[3]}" = "TV_BASE=/files/tv" ]
+    [ "${lines[0]}" = "convert_dir   = /tmp" ]
+    [ "${lines[1]}" = "ignore_itunes = " ]
+    [ "${lines[2]}" = "trash_dir     = " ]
+    [ "${lines[3]}" = "tv_base       = /files/tv" ]
 }
 
 @test "file overrides default configuration" {
     export MEDIA_CONFIG=tests/config/media.conf
 
     run media show-config
-    [ "${lines[0]}" = "CONVERT_DIR=/tmp/convert" ]
-    [ "${lines[1]}" = "IGNORE_ITUNES=1" ]
-    [ "${lines[2]}" = "TRASH_DIR=/tmp/trash" ]
-    [ "${lines[3]}" = "TV_BASE=/tmp/tv" ]
+    [ "${lines[0]}" = "convert_dir   = /tmp/convert" ]
+    [ "${lines[1]}" = "ignore_itunes = 1" ]
+    [ "${lines[2]}" = "trash_dir     = /tmp/trash" ]
+    [ "${lines[3]}" = "tv_base       = /tmp/tv" ]
+}
+
+@test "partial file doesn't override entire default configuration" {
+    export MEDIA_CONFIG=tests/config/partial.conf
+
+    run media show-config
+    [ "${lines[0]}" = "convert_dir   = /tmp/convert" ]
+    [ "${lines[1]}" = "ignore_itunes = " ]
+    [ "${lines[2]}" = "trash_dir     = " ]
+    [ "${lines[3]}" = "tv_base       = /files/tv" ]
 }
 
 @test "environment overrides default configuration" {
@@ -25,10 +35,10 @@
     export MEDIA_TV_BASE=/tmp/tv
 
     run media show-config
-    [ "${lines[0]}" = "CONVERT_DIR=/tmp/convert" ]
-    [ "${lines[1]}" = "IGNORE_ITUNES=1" ]
-    [ "${lines[2]}" = "TRASH_DIR=/tmp/trash" ]
-    [ "${lines[3]}" = "TV_BASE=/tmp/tv" ]
+    [ "${lines[0]}" = "convert_dir   = /tmp/convert" ]
+    [ "${lines[1]}" = "ignore_itunes = 1" ]
+    [ "${lines[2]}" = "trash_dir     = /tmp/trash" ]
+    [ "${lines[3]}" = "tv_base       = /tmp/tv" ]
 }
 
 @test "environment overrides file overrides default configuration" {
@@ -39,8 +49,8 @@
     export MEDIA_TV_BASE=/tmp/env/tv
 
     run media show-config
-    [ "${lines[0]}" = "CONVERT_DIR=/tmp/env/convert" ]
-    [ "${lines[1]}" = "IGNORE_ITUNES=2" ]
-    [ "${lines[2]}" = "TRASH_DIR=/tmp/env/trash" ]
-    [ "${lines[3]}" = "TV_BASE=/tmp/env/tv" ]
+    [ "${lines[0]}" = "convert_dir   = /tmp/env/convert" ]
+    [ "${lines[1]}" = "ignore_itunes = 2" ]
+    [ "${lines[2]}" = "trash_dir     = /tmp/env/trash" ]
+    [ "${lines[3]}" = "tv_base       = /tmp/env/tv" ]
 }

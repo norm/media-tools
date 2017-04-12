@@ -7,8 +7,12 @@ have media && {
     }
 
     function _tv_series {
-        local base=$( media show-config | awk -F= '/TV_BASE/ { print $2 }' )
         local IFS=$'\n'
+        local base=$(
+            media show-config \
+                | awk -F= '/tv_base/ { print $2 }' \
+                | sed -e 's/^ *//' -e 's/ *$//'
+        )
 
         _pushd "$base"
         COMPREPLY=( $(compgen -d "${COMP_WORDS[COMP_CWORD]}") )

@@ -2,7 +2,7 @@
 
 
 @test "lookup show id" {
-    export MEDIA_TV_SHOWS=tests/config/tv_shows.conf
+    export MEDIA_CONFIG=tests/config/media.conf
     source bin/media
 
     [ '5718' == $( lookup_tv_id 'The Flash' ) ]
@@ -36,7 +36,7 @@
 }
 
 @test "gets episode titles using lookups from shows file" {
-    export MEDIA_TV_SHOWS=tests/config/tv_shows.conf
+    export MEDIA_CONFIG=tests/config/media.conf
     source bin/media
 
     [ 'Pilot' == "$( media-get-episode-title 'The Flash' 1 1 )" ]

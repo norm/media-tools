@@ -4,26 +4,6 @@ reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
 
-# default configuration
-CONVERT_DIR=/tmp
-IGNORE_ITUNES=
-TRASH_DIR=
-TV_BASE=/files/tv
-TV_SHOWS=
-
-# override config with file
-# shellcheck source=/dev/null
-[ -n "$MEDIA_CONFIG" ] \
-    && source "$MEDIA_CONFIG"
-
-# override with env, which takes precedence over file
-CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
-IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
-TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
-TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
-TV_SHOWS="${MEDIA_TV_SHOWS:=$TV_SHOWS}"
-
-
 function media_error {
     printf "${bold}${red}*** %s${reset}\n" "$*"
     exit 1
@@ -45,11 +25,10 @@ function config_key {
 }
 
 function show_configuration {
-    echo "CONVERT_DIR=$CONVERT_DIR"
-    echo "IGNORE_ITUNES=$IGNORE_ITUNES"
-    echo "TRASH_DIR=$TRASH_DIR"
-    echo "TV_BASE=$TV_BASE"
-    echo "TV_SHOWS=$TV_SHOWS"
+    echo "convert_dir   = $CONVERT_DIR"
+    echo "ignore_itunes = $IGNORE_ITUNES"
+    echo "trash_dir     = $TRASH_DIR"
+    echo "tv_base       = $TV_BASE"
 }
 
 function media_lookup_atom {
@@ -65,7 +44,7 @@ function media_lookup_atom {
 }
 
 function lookup_tv_id {
-    config_key "$TV_SHOWS" "$1"
+    config_key "$MEDIA_CONFIG" "$1" 'tv-ids'
 }
 
 function extract_track_metadata {
@@ -102,6 +81,30 @@ function run_command {
 
     $command "$@"
 }
+
+# default configuration
+CONVERT_DIR=/tmp
+IGNORE_ITUNES=
+TRASH_DIR=
+TV_BASE=/files/tv
+
+# override config with file
+if [ -n "$MEDIA_CONFIG" ]; then
+    convert="$( config_key "$MEDIA_CONFIG" convert_dir )"
+    [ -n "$convert" ] && CONVERT_DIR="${convert}"
+    ignore="$( config_key "$MEDIA_CONFIG" ignore_itunes )"
+    [ -n "$ignore" ] && IGNORE_ITUNES="${ignore}"
+    trash="$( config_key "$MEDIA_CONFIG" trash_dir )"
+    [ -n "$trash" ] && TRASH_DIR="${trash}"
+    tv="$( config_key "$MEDIA_CONFIG" tv_base )"
+    [ -n "$tv" ] && TV_BASE="${tv}"
+fi
+
+# override with env, which takes precedence over file
+CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
+IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
+TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
+TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
 
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
