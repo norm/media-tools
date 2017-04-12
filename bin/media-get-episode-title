@@ -26,14 +26,35 @@ function get_episode_title {
         )
     fi
 
-    # 2>&1 echo "curl -fs https://www.episodate.com/api/show-details?q=${id}"
-    curl -fs "https://www.episodate.com/api/show-details?q=${id}" \
-        | jq -r "
-            .tvShow.episodes[] 
-                | select(.season == $season)
-                | select(.episode == $episode)
-                | .name
-            "
+    local -r tmpfile=$( mktemp )
+    curl -fs "https://www.episodate.com/api/show-details?q=${id}" > "$tmpfile"
+
+    if [ "$(<"$tmpfile")" == '{"tvShow":[]}' ]; then
+        exec >&2
+        echo "No show found directly matching ID $id."
+        echo 'Possible matches:'
+        echo " >> curl -fs https://www.episodate.com/api/search?q=${id} | jq -r .tv_shows[] | { id: .id, slug: .permalink, name: .name }"
+        echo ''
+        curl -fs "https://www.episodate.com/api/search?q=${id}" \
+                    | jq -r ".tv_shows[] | .id, .permalink, .name" \
+                    | awk '
+                            NR % 3 == 2 { permalink=$0 }
+                            NR % 3 == 1 { id=$0 }
+                            NR % 3 == 0 {
+                                printf "  * %s\n    slug=%s id=%s\n\n",
+                                    $0, permalink, id 
+                            }
+                        '
+    else
+        # shellcheck disable=SC2002
+        cat "$tmpfile" \
+            | jq -r "
+                .tvShow.episodes[]
+                    | select(.season == $season)
+                    | select(.episode == $episode)
+                    | .name
+                "
+    fi
 }
 
 get_episode_title "$@"

@@ -28,7 +28,7 @@ function make_directory {
     dir=$(printf "%s - %dx%02d - %s" "$show" "$season" "$episode" "$title")
     echo "$dir"
 
-    mkdir "$dir"
+    mkdir -p "$dir"
 
     # FIXME poster.png?
     if [ -f "$TV_BASE/$show/Season $season/poster.jpg" ]; then
