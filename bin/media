@@ -5,8 +5,8 @@ bold="\e[1m"
 red="\e[31m"
 
 # default configuration
-IGNORE_ITUNES=
 CONVERT_DIR=/tmp
+IGNORE_ITUNES=
 TRASH_DIR=
 TV_BASE=/files/tv
 TV_SHOWS=
@@ -17,8 +17,8 @@ TV_SHOWS=
     && source "$MEDIA_CONFIG"
 
 # override with env, which takes precedence over file
-IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
+IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
 TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
 TV_SHOWS="${MEDIA_TV_SHOWS:=$TV_SHOWS}"
