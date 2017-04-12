@@ -58,6 +58,7 @@ function convert_and_add_from_dvd_image {
     local -r directory="$1"
     local -r arg_tracks="$2"
     local -r metadata="$directory/metadata.conf"
+    local tracks
 
     create_metadata_file_if_missing "$directory"
     abort_if_metadata_unedited "$metadata"
