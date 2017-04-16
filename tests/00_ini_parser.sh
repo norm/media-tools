@@ -47,3 +47,52 @@ INI_FILE=tests/config/example.ini
     echo "** $value"
     [ "$value" == 'track 1' ]
 }
+
+@test "read a key containing start of string anchor metacharacter" {
+    local value
+    value=$( config_key $INI_FILE '^bob' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing end of string anchor metacharacter" {
+    value=$( config_key $INI_FILE 'bob$' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing brackets metacharacters" {
+    value=$( config_key $INI_FILE '(bob)' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing a fullstop metacharacter" {
+    value=$( config_key $INI_FILE 'b.b' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing a question mark metacharacter" {
+    value=$( config_key $INI_FILE 'b?b' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing an asterisk metacharacter" {
+    value=$( config_key $INI_FILE 'b*b' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing a plus metacharacter" {
+    value=$( config_key $INI_FILE 'b+b' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}
+
+@test "read a key containing a vertical bar metacharacter" {
+    value=$( config_key $INI_FILE 'b|b' )
+    echo "** $value"
+    [ "$value" == 'bob' ]
+}

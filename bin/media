@@ -11,8 +11,18 @@ function media_error {
 
 function config_key {
     local -r filename="$1"
-    local -r key="$2"
+    local key="$2"
     local -r section="${3:-____}"
+
+    key="${key//\(/\(}"
+    key="${key//)/\)}"
+    key="${key//^/\^}"
+    key="${key//$/\\$}"
+    key="${key//./\.}"
+    key="${key//\*/\\*}"
+    key="${key//\?/\\?}"
+    key="${key//\+/\\+}"
+    key="${key//\|/\\|}"
 
     awk -F= "
             NR==1 { p=1 }
