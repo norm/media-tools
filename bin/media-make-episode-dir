@@ -18,12 +18,13 @@ function make_directory {
     local -r show="$1"
     local -r season="$2"
     local -r episode="$3"
+    local title="$4"
 
-    title=$( media-get-episode-title "$show" "$season" "$episode" )
-    # echo "<< $title"
-    title=$( sanitise_for_directory "$title" )
-    # echo ">> $title"
-    [ -z "$title" ] && title='___'
+    if [ -z "$title" ]; then
+        title=$( media-get-episode-title "$show" "$season" "$episode" )
+        title=$( sanitise_for_directory "$title" )
+        [ -z "$title" ] && title='___'
+    fi
 
     dir=$(printf "%s - %dx%02d - %s" "$show" "$season" "$episode" "$title")
     echo "$dir"

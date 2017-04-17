@@ -79,6 +79,21 @@ source tests/lib.sh
     rm -rf "$MEDIA_TV_BASE" "$process_dir"
 }
 
+@test "makes directory with provided (incorrect) title" {
+    local -r process_dir=$( mktemp -d )
+
+    # there should be nothing before we begin
+    dir_is_empty "$process_dir"
+
+    pushd $process_dir
+    media-make-episode-dir House 1 1 'Everybody Tells the Truth'
+
+    [ ! -d "House - 1x01 - Everybody Lies" ]
+    [ -d "House - 1x01 - Everybody Tells the Truth" ]
+
+    popd
+}
+
 @test "doesn't make directories with invalid metacharacters" {
     local check=$( sanitise_for_directory 'Show - 1x01 - Thing/Other Thing')
     [ 'Show - 1x01 - Thing - Other Thing' == "$check" ]
