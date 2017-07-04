@@ -8,7 +8,7 @@ function test_install_works {
     cp tests/source/tiny.mp4 "$source"
 
     eval media-tag-video "$source" "$( media-extract-video-metadata "$title" )"
-    media-install "$source"
+    media-install-video "$source"
 
     [ -f "$destination" ]
     [ ! -f "$source" ]

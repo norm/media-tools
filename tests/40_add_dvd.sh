@@ -12,7 +12,7 @@ POSTER="$DVD_IMAGE/poster.jpg"
 
 @test "empty DVD image creates a metadata.conf" {
     rm -f "$CONF"
-    media-add "$DVD_IMAGE"
+    media-add-video "$DVD_IMAGE"
 
     [ -f "$CONF" ]
     diff -u "$CONF" "$UNEDITED_CONF"
@@ -21,7 +21,7 @@ POSTER="$DVD_IMAGE/poster.jpg"
 @test "refuses to add titles unless metadata.conf has been filled out" {
     cp "$UNEDITED_CONF" "$CONF"
 
-    run media-add "$DVD_IMAGE"
+    run media-add-video "$DVD_IMAGE"
     [ "$output" == "'$DVD_IMAGE/metadata.conf' has not been filled out; aborting." ]
 }
 
@@ -33,7 +33,7 @@ POSTER="$DVD_IMAGE/poster.jpg"
 
     cp "$EDITED_CONF" "$CONF"
 
-    run media-add -t$TRACK "$DVD_IMAGE"
+    run media-add-video -t$TRACK "$DVD_IMAGE"
     [ "$output" != "'$DVD_IMAGE/metadata.conf' has not been filled out; aborting." ]
 }
 
@@ -49,9 +49,9 @@ POSTER="$DVD_IMAGE/poster.jpg"
 
     cp "$EDITED_CONF" "$CONF"
     cp tests/source/tv.jpg "$POSTER"
-    media-add -t$TRACK "$DVD_IMAGE"
+    media-add-video -t$TRACK "$DVD_IMAGE"
 
-    # media-add should have installed converted TV
+    # media-add-video should have installed converted TV
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
 
     local installed="$MEDIA_TV_BASE/Buffy the Vampire Slayer/Season 4/09 Something Blue.m4v"
@@ -77,9 +77,9 @@ POSTER="$DVD_IMAGE/poster.jpg"
 
     cp "$EDITED_CONF" "$CONF"
     cp tests/source/tv.jpg "$POSTER"
-    media-add "$DVD_IMAGE"
+    media-add-video "$DVD_IMAGE"
 
-    # media-add should have installed converted TV
+    # media-add-video should have installed converted TV
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 9 ]
 
     local install_dir="$MEDIA_TV_BASE/Buffy the Vampire Slayer/Season 4/"

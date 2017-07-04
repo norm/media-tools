@@ -11,9 +11,9 @@ source tests/lib.sh
     # there should be nothing before we begin
     dir_is_empty "$MEDIA_TV_BASE"
 
-    media-add "tests/process/House - 1x01 - Pilot"
+    media-add-video "tests/process/House - 1x01 - Pilot"
 
-    # media-add should have installed converted TV
+    # media-add-video should have installed converted TV
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
 
     local installed="$MEDIA_TV_BASE/House/Season 1/01 Pilot.m4v"
@@ -36,9 +36,9 @@ source tests/lib.sh
     # there should be nothing before we begin
     dir_is_empty "$MEDIA_TV_BASE"
 
-    media-add "tests/process/Brooklyn Nine-Nine - 4x11-12 - Fugitive"
+    media-add-video "tests/process/Brooklyn Nine-Nine - 4x11-12 - Fugitive"
 
-    # media-add should have installed converted TV
+    # media-add-video should have installed converted TV
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
 
     local installed="$MEDIA_TV_BASE/Brooklyn Nine-Nine/Season 4/11 Fugitive.m4v"
@@ -71,7 +71,7 @@ source tests/lib.sh
     cp tests/source/tv.jpg "$source/poster.jpg"
     cp tests/source/tv.jpg "$source/poster-resized-4482.jpg"
 
-    media-add "$source"
+    media-add-video "$source"
 
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
     [ $( count_files_in_dir "$MEDIA_TRASH_DIR" ) = 1 ]
@@ -103,9 +103,9 @@ source tests/lib.sh
     mkdir -p "$install_dir"
     touch "$existing"
 
-    media-add "tests/process/House - 1x01 - Pilot"
+    media-add-video "tests/process/House - 1x01 - Pilot"
 
-    # media-add should have installed converted TV
+    # media-add-video should have installed converted TV
     [ "$( count_files_in_dir "$MEDIA_TV_BASE" )" = 2 ]
 
     # file is not the output video
