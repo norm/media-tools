@@ -80,7 +80,7 @@ function summary_line {
 
 function list_available_commands {
     for command in $( compgen -c | grep '^media-' ); do
-        printf '%16s  ' "$( echo "$command" | cut -c7- )"
+        printf '%22s  ' "$( echo "$command" | cut -c7- )"
         $command --summary
     done
 }

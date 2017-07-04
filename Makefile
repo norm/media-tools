@@ -2,8 +2,8 @@ BASH_COMPLETION_DIR := '/usr/local/etc/bash_completion.d'
 MEDIA_SCRIPTS = media \
 	media-add \
 	media-convert-video \
-	media-create-metadata-file \
-	media-extract-metadata \
+	media-create-video-metadata \
+	media-extract-video-metadata \
 	media-get-episode-title \
 	media-install \
 	media-itunes-add \

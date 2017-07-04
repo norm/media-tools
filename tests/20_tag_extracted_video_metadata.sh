@@ -10,7 +10,7 @@ source bin/media
 
     cp tests/source/tiny.mp4 "$tempfile"
 
-    eval media-tag-video "$tempfile" $( media-extract-metadata "$episode" )
+    eval media-tag-video "$tempfile" $( media-extract-video-metadata "$episode" )
 
     # these were the direct arguments
     [ "$(media_lookup_atom "$tempfile" tvsn)" == '1' ]

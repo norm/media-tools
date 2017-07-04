@@ -33,7 +33,7 @@ function create_metadata_file_if_missing {
     if [ ! -f "$metadata" ]; then
         # create a metadata.conf file for instructing `media` what 
         # the TV shows inside the DVD are
-        media-create-metadata-file "$directory" > "$metadata"
+        media-create-video-metadata "$directory" > "$metadata"
         echo "Created '$metadata'."
         echo "Edit this and re-run."
         exit
@@ -76,9 +76,9 @@ function convert_and_add_from_dvd_image {
 
         media-convert-video "$directory" "$output" "$track"
 
-        media-extract-metadata "$directory" "$track"
+        media-extract-video-metadata "$directory" "$track"
         eval media-tag-video "$output" "$( 
-                media-extract-metadata "$directory" "$track"
+                media-extract-video-metadata "$directory" "$track"
             )"
 
         [ -f "$directory/poster.jpg" ] \
@@ -103,7 +103,7 @@ function convert_and_add_from_directory {
 
     media-convert-video "$video" "$output"
 
-    eval media-tag-video "$output" "$( media-extract-metadata "$dir" )"
+    eval media-tag-video "$output" "$( media-extract-video-metadata "$dir" )"
 
     [ -f "$dir/poster.jpg" ] && media-set-artwork "$output" "$dir/poster.jpg"
     [ -f "$dir/poster.png" ] && media-set-artwork "$output" "$dir/poster.png"
