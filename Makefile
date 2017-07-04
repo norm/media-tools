@@ -8,7 +8,7 @@ MEDIA_SCRIPTS = media \
 	media-install \
 	media-itunes-add \
 	media-make-episode-dir \
-	media-set-poster \
+	media-set-artwork \
 	media-tag-video
 COMPLETION_SCRIPTS = media
 

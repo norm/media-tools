@@ -82,9 +82,9 @@ function convert_and_add_from_dvd_image {
             )"
 
         [ -f "$directory/poster.jpg" ] \
-            && media-set-poster "$output" "$directory/poster.jpg"
+            && media-set-artwork "$output" "$directory/poster.jpg"
         [ -f "$directory/poster.png" ] \
-            && media-set-poster "$output" "$directory/poster.png"
+            && media-set-artwork "$output" "$directory/poster.png"
 
         path=$( eval media-install "$output" )
 
@@ -105,8 +105,8 @@ function convert_and_add_from_directory {
 
     eval media-tag-video "$output" "$( media-extract-metadata "$dir" )"
 
-    [ -f "$dir/poster.jpg" ] && media-set-poster "$output" "$dir/poster.jpg"
-    [ -f "$dir/poster.png" ] && media-set-poster "$output" "$dir/poster.png"
+    [ -f "$dir/poster.jpg" ] && media-set-artwork "$output" "$dir/poster.jpg"
+    [ -f "$dir/poster.png" ] && media-set-artwork "$output" "$dir/poster.png"
 
     path=$( eval media-install "$output" )
     if [ -z "$IGNORE_ITUNES" ]; then

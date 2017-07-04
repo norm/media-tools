@@ -4,15 +4,15 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
-summary_line "$*" 'add poster image(s) to a file'
+summary_line "$*" 'add artwork image(s) to a file'
 
 
 file="$1"
 shift
 
-for poster in "$@"; do
+for artwork in "$@"; do
     AtomicParsley           \
         "$file"             \
         --overWrite         \
-        --artwork "$poster"
+        --artwork "$artwork"
 done
