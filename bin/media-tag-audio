@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'add metadata to an audio file'
+
+
+function media_tag_audio {
+    local -r file="$1"
+    shift
+
+    AtomicParsley           \
+        "$file"             \
+        --overWrite         \
+        "$@"                \
+            >/dev/null
+}
+
+
+media_tag_audio "$@"

@@ -16,3 +16,9 @@ function count_files_in_dir {
 function dir_is_empty {
     [ "$( count_files_in_dir "$1" )" = 0 ]
 }
+
+function needs_source {
+    if [ ! -e "$1" ]; then
+        skip "needs source $1"
+    fi
+}

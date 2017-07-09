@@ -1,9 +1,12 @@
 BASH_COMPLETION_DIR := '/usr/local/etc/bash_completion.d'
 MEDIA_SCRIPTS = media \
+	media-add-cd \
 	media-add-video \
 	media-convert-video \
+	media-convert-wav \
 	media-create-audio-metadata \
 	media-create-video-metadata \
+	media-extract-audio-metadata \
 	media-extract-video-metadata \
 	media-get-cd-id \
 	media-get-episode-title \
@@ -12,6 +15,7 @@ MEDIA_SCRIPTS = media \
 	media-make-episode-dir \
 	media-rip-cd \
 	media-set-artwork \
+	media-tag-audio \
 	media-tag-video
 COMPLETION_SCRIPTS = media
 

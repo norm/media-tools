@@ -2,6 +2,7 @@
 
 @test "default configuration" {
     local -a expects=(
+        "auto_add_dir  = "
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp"
         "ignore_itunes = "
@@ -21,6 +22,7 @@
 
 @test "file overrides default configuration" {
     local -a expects=(
+        "auto_add_dir  = /tmp/add"
         "cd_rip_dir    = /tmp/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = 1"
@@ -41,6 +43,7 @@
 
 @test "partial file doesn't override entire default configuration" {
     local -a expects=(
+        "auto_add_dir  = "
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = "
@@ -61,6 +64,7 @@
 
 @test "environment overrides default configuration" {
     local -a expects=(
+        "auto_add_dir  = "
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = 1"
@@ -84,6 +88,7 @@
 
 @test "environment overrides file overrides default configuration" {
     local -a expects=(
+        "auto_add_dir  = /tmp/env/add"
         "cd_rip_dir    = /tmp/env/rip"
         "convert_dir   = /tmp/env/convert"
         "ignore_itunes = 2"
@@ -92,6 +97,7 @@
     )
 
     export MEDIA_CONFIG=tests/config/media.conf
+    export MEDIA_AUTO_ADD_DIR=/tmp/env/add
     export MEDIA_CD_RIP_DIR=/tmp/env/rip
     export MEDIA_CONVERT_DIR=/tmp/env/convert
     export MEDIA_IGNORE_ITUNES=2
