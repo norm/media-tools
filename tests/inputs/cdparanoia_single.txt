@@ -1,0 +1,19 @@
+cdparanoia III release 10.2 (September 11, 2008)
+
+track_num = 160 start sector 4350 msf: 1,0,0
+track_num = 161 start sector 17850 msf: 4,0,0
+track_num = 162 start sector 68350 msf: 15,13,25
+track_num = 1 start sector 0 msf: 0,2,0
+track_num = 2 start sector 19242 msf: 4,18,42
+track_num = 3 start sector 36862 msf: 8,13,37
+track_num = 4 start sector 52302 msf: 11,39,27
+
+Table of contents (audio tracks only):
+track        length               begin        copy pre ch
+===========================================================
+  1.    19242 [04:16.42]        0 [00:00.00]    no   no  2
+  2.    17620 [03:54.70]    19242 [04:16.42]    no   no  2
+  3.    15440 [03:25.65]    36862 [08:11.37]    no   no  2
+  4.    16048 [03:33.73]    52302 [11:37.27]    no   no  2
+TOTAL   68350 [15:11.25]    (audio only)
+ 

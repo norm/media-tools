@@ -4,6 +4,7 @@ MEDIA_SCRIPTS = media \
 	media-convert-video \
 	media-create-video-metadata \
 	media-extract-video-metadata \
+	media-get-cd-id \
 	media-get-episode-title \
 	media-install-video \
 	media-itunes-add \
