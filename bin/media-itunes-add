@@ -4,7 +4,7 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
-summary_line "$*" 'add a file to the iTunes library'
+summary_line "$*" 'add an unmanaged file to the iTunes library'
 
 
 function get_absolute_path {
