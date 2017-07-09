@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'identify and rip tracks from a CD'
+
+
+eval "$( media-get-cd-id )"
+
+# shellcheck disable=SC2154
+if [ -z "$media_disc_id" ]; then
+    echo "No CD found?"
+    exit 1
+fi
+
+# shellcheck disable=SC2154
+working_dir="${CD_RIP_DIR}/$media_disc_id"
+metadata="${working_dir}/metadata.conf"
+
+mkdir -p "${working_dir}/wavs"
+media-create-audio-metadata
+
+printf "Ripping '%s' by '%s'\n -> %s\n\n" \
+    "$(config_key "$metadata" album)" \
+    "$(config_key "$metadata" artist)" \
+    "$working_dir"
+
+# shellcheck disable=SC2154
+for track in $(seq 1 "$media_disc_track_count"); do
+    title=$( config_key "$metadata" title "$track" )
+    output_file=$(
+        printf "%s/wavs/%02d.wav" \
+            "$working_dir" \
+            "$track"
+    )
+
+    printf "%02d/%02d %s\n" \
+        "$track" \
+        "$media_disc_track_count" \
+        "$title"
+    cdparanoia -qP "$track" "$output_file"
+    echo ''
+done
+
+drutil eject

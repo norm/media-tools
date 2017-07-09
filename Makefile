@@ -10,6 +10,7 @@ MEDIA_SCRIPTS = media \
 	media-install-video \
 	media-itunes-add \
 	media-make-episode-dir \
+	media-rip-cd \
 	media-set-artwork \
 	media-tag-video
 COMPLETION_SCRIPTS = media
