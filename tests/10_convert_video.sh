@@ -1,6 +1,8 @@
 #!/usr/bin/env bats
 
 source bin/media
+source tests/lib.sh
+
 export MEDIA_TESTING=1
 
 
@@ -68,6 +70,8 @@ function compare_audio_tracks {
 @test "converts one track in a DVD" {
     SOURCE_FILE="tests/source/BUFFY_S4D3"
     TRACK=19
+
+    needs_source $SOURCE_FILE
 
     run media-convert-video "$SOURCE_FILE" "$OUTPUT_FILE" "$TRACK"
     capture_metadata

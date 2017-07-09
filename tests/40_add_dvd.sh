@@ -11,6 +11,8 @@ POSTER="$DVD_IMAGE/poster.jpg"
 
 
 @test "empty DVD image creates a metadata.conf" {
+    needs_source "$DVD_IMAGE"
+
     rm -f "$CONF"
     media-add-video "$DVD_IMAGE"
 
@@ -19,6 +21,8 @@ POSTER="$DVD_IMAGE/poster.jpg"
 }
 
 @test "refuses to add titles unless metadata.conf has been filled out" {
+    needs_source "$DVD_IMAGE"
+
     cp "$UNEDITED_CONF" "$CONF"
 
     run media-add-video "$DVD_IMAGE"
@@ -26,6 +30,8 @@ POSTER="$DVD_IMAGE/poster.jpg"
 }
 
 @test "ignores REPLACE_ME tokens that are commented out" {
+    needs_source "$DVD_IMAGE"
+
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )
     export MEDIA_TESTING=short
@@ -38,6 +44,8 @@ POSTER="$DVD_IMAGE/poster.jpg"
 }
 
 @test "add a single title from a multi-title DVD" {
+    needs_source "$DVD_IMAGE"
+
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )
     export MEDIA_TESTING=short
@@ -68,6 +76,8 @@ POSTER="$DVD_IMAGE/poster.jpg"
 }
 
 @test "adds all titles from a multi-title DVD" {
+    needs_source "$DVD_IMAGE"
+
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TV_BASE=$( mktemp -d )
     export MEDIA_TESTING=short

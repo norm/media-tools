@@ -1,6 +1,8 @@
 #!/usr/bin/env bats
 
 source bin/media-convert-video
+source tests/lib.sh
+
 
 @test "passthrough AC3" {
     local -a args=($( get_audio_arguments "tests/source/720p-ac3.vob" ))
@@ -73,6 +75,8 @@ source bin/media-convert-video
 }
 
 @test "only one title from a DVD" {
+    needs_source tests/source/BUFFY_S4D3
+
     local -a args=($( get_audio_arguments "tests/source/BUFFY_S4D3" 1 ))
     echo "${args[@]}"
     [ "${args[0]}" = '--audio' ]
@@ -88,6 +92,8 @@ source bin/media-convert-video
 }
 
 @test "a DVD title with multiple audio streams" {
+    needs_source tests/source/BUFFY_S4D3
+
     local -a args=($( get_audio_arguments "tests/source/BUFFY_S4D3" 2 ))
     echo "${args[@]}"
     [ "${args[0]}" = '--audio' ]
