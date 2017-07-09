@@ -233,6 +233,10 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
             show_configuration
             ;;
 
+        version)
+            echo "media-tools version $MEDIA_VERSION"
+            ;;
+
         *)  run_command "$@"
             ;;
     esac
