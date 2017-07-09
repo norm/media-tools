@@ -48,3 +48,24 @@ ALBUM_TRACK_COUNT='13'
         let count=count+1
     done
 }
+
+@test "get CDDB matches for single" {
+    local expects="rock 39038f04 Deacon Blue / Dignity"
+    local gets=$( cddb_matches "$SINGLE_QUERY" )
+
+    cddb_matches "$SINGLE_QUERY"
+
+    echo "expects='$expects'"
+    echo "   gets='$gets'"
+    [ "$gets" = "$expects" ]
+}
+
+@test "get CDDB matches for album" {
+    local expects="misc a60b080d Deacon Blue / Raintown
+rock a60b080d Depeche Mode / Violator"
+    local gets=$( cddb_matches "$ALBUM_QUERY" )
+
+    echo "expects='$expects'"
+    echo "   gets='$gets'"
+    [ "$gets" = "$expects" ]
+}
