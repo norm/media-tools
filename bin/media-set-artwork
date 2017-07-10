@@ -4,7 +4,17 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" true
 summary_line "$*" 'add artwork image(s) to a file'
+help_text "$*" <<'EOF'
+    Usage: media set-artwork <file> <artwork>
+
+    Will use AtomicParsley to add the named artwork to the named file.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-cd` and `add-video`.
+EOF
 
 
 file="$1"

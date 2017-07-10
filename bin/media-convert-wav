@@ -5,7 +5,18 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" true
 summary_line "$*" 'convert a WAV file to high quality AAC'
+help_text "$*" <<'EOF'
+    Usage: media convert-wav <source> <destination>
+
+    Converts the WAV file named in source, and creates an AAC file
+    akin to "Mastered for iTunes" quality in the named destination.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-cd`.
+EOF
 
 # from https://developer.apple.com/library/content/technotes/tn2271/_index.html
 STRATEGY_CBR=0

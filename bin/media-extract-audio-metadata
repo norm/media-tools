@@ -4,7 +4,20 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" true
 summary_line "$*" 'extract metadata from a ripped CD'
+help_text "$*" <<'EOF'
+    Usage: media extract-audio-metadata <file> <track> [<total>]
+
+    Using the named metadata file and track number, outputs the tag
+    arguments needed by AtomicParsley to add metadata to an audio file.
+    Can be given an optional total number of tracks on the CD to
+    correctly create the "track 4 of 12" setting.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-cd`.
+EOF
 
 
 function extract_cd_metadata_from_file {

@@ -4,7 +4,22 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" false
 summary_line "$*" 'something something tv episode directory'
+help_text "$*" <<'EOF'
+    Usage: media make-episode-dir <series> <season> <episode> [<title>]
+
+    Creates a directory for the named episode of a TV series in the right
+    format for use by `add-video`. If the episode's title is not provided, it
+    will use `get-episode-title` to look it up. Tries to find the poster image
+    to use in this order:
+
+        $MEDIA_TV_BASE/<series>/Season <season>/poster.jpg
+        $MEDIA_TV_BASE/<series>/poster.jpg
+        $MEDIA_TV_BASE/posters/<series>.jpg
+EOF
+
 
 function sanitise_for_directory {
     local directory="$1"

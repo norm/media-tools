@@ -4,7 +4,18 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" true
 summary_line "$*" 'convert a source video file to m4v'
+help_text "$*" <<'EOF'
+    Usage: media convert-video <dir> <output_file> [<dvd track>]
+
+    Will convert the video file or DVD track found in the named
+    directory, and output to the named file.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-video`.
+EOF
 
 
 function get_audio_streams {

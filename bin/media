@@ -3,7 +3,7 @@
 reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
-MEDIA_VERSION=0.5
+MEDIA_VERSION=0.6
 
 
 function media_error {
@@ -80,6 +80,44 @@ function show_configuration {
     echo "ignore_itunes = $IGNORE_ITUNES"
     echo "trash_dir     = $TRASH_DIR"
     echo "tv_base       = $TV_BASE"
+}
+
+function show_configuration_help {
+    sed -e 's/^    //' <<EOF
+    The configurable settings of media-tools are:
+
+        auto_add_dir   where the iTunes "Automatically Add to iTunes" is
+                       (if set, add-cd will move converted audio to it)
+        cd_rip_dir     where the output of rip-cd is kept
+        convert_dir    where video conversion temp files are kept
+        ignore_itunes  set to stop add-video adding the file to iTunes
+        trash_dir      after converting, add-video will move video files here
+        tv_base        where to store your converted TV content
+
+    Each can be set two ways:
+
+      * set the environment variable MEDIA_<SETTING>, like so:
+
+          export MEDIA_CD_RIP_DIR=~/Desktop/cd-rips
+
+      * create a file like so:
+
+          # media config
+          trash_dir = /Volumes/trash
+
+        then set the environment variable MEDIA_CONFIG to point to it:
+
+          export MEDIA_CONFIG=~/.media.conf
+
+    Environment variables will override the contents of the file pointed at
+    by MEDIA_CONFIG when both are set. This allows you to keep your usual
+    settings in a file, but temporarily change them if necessary, without
+    editing the file (and subsequently forgetting to change it back).
+
+    The values are currently set to:
+
+EOF
+    show_configuration | sed -e 's/^/    /'
 }
 
 function media_lookup_atom {
@@ -161,6 +199,13 @@ function cddb_read_disc {
         | sed '1d;$d'
 }
 
+function is_sub {
+    if [ "$1" = '--is-sub' ]; then
+        echo "$2"
+        exit
+    fi
+}
+
 function summary_line {
     if [ "$1" = '--summary' ]; then
         echo "$2"
@@ -168,11 +213,81 @@ function summary_line {
     fi
 }
 
+function help_text {
+    if [ "$1" = '--help' ]; then
+        sed -e 's/^    //'
+        exit
+    fi
+}
+
+function show_help_for {
+    case "$1" in
+        '')
+            echo 'Usage: media help <command>'
+            echo ''
+            echo 'Show more detailed help for the named command.'
+            ;;
+
+        show-config)
+            show_configuration_help
+            ;;
+
+        version)
+            # seriously?
+            echo 'List the current version of media-tools installed.'
+            ;;
+
+        help)
+            # INCEPTION HORN BLARE
+            echo 'Shows more detailed help for media commands.'
+            ;;
+
+        *)
+            media-"$1" --help
+            ;;
+    esac
+}
+
+function show_version {
+    echo "media-tools version $MEDIA_VERSION"
+}
+
+function show_usage {
+    show_version
+    echo ''
+    echo 'Usage: media <command> [args...]'
+    echo ''
+    echo '                  help  show more detailed help on a command'
+    echo '           show-config  show the current configuration'
+    echo '          show-version  show the current version of media-tools'
+    list_available_commands
+}
+
 function list_available_commands {
-    for command in $( compgen -c | grep '^media-' ); do
-        printf '%22s  ' "$( echo "$command" | cut -c7- )"
-        $command --summary
+    local -a commands=($( compgen -c | grep '^media-' ))
+    local main_commands
+    local subcommands
+
+    for command in "${commands[@]}"; do
+        if [ "$($command --is-sub)" = 'false' ]; then
+            main_commands="$(
+                    printf '%s\n%22s  %s' \
+                        "${main_commands}" \
+                        "$( echo "$command" | cut -c7- )" \
+                        "$( $command --summary )"
+                )"
+        else
+            subcommands="$(
+                    printf '%s\n%22s  %s' \
+                        "${subcommands}" \
+                        "$( echo "$command" | cut -c7- )" \
+                        "$( $command --summary )"
+                )"
+        fi
     done
+
+    echo "$main_commands"
+    echo "$subcommands"
 }
 
 function run_command {
@@ -226,7 +341,11 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # being run as a command, not sourced by another script
     case "$1" in
         ''|-h|--help)
-            list_available_commands
+            show_usage
+            ;;
+
+        help)
+            show_help_for "$2"
             ;;
 
         show-config)
@@ -234,7 +353,7 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
             ;;
 
         version)
-            echo "media-tools version $MEDIA_VERSION"
+            show_version
             ;;
 
         *)  run_command "$@"

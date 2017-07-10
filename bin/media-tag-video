@@ -4,7 +4,18 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
+is_sub "$*" true
 summary_line "$*" 'add metadata to a video file'
+help_text "$*" <<'EOF'
+    Usage: media tag-video <file> <args>
+
+    Uses AtomicParsley to apply the named tagging arguments
+    to the named file.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-video`.
+EOF
 
 
 function media_tag_video {
