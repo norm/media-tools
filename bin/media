@@ -3,7 +3,7 @@
 reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
-MEDIA_VERSION=0.6
+MEDIA_VERSION=0.6.1
 
 
 function media_error {

@@ -27,7 +27,9 @@ else
     cdparanoia --query 2> "$cd_output" || true
 
     if [ "$(tail -1 "$cd_output")" = 'Unable to open disc.' ]; then
-        echo "Unable to open disc."
+        echo media_disc_id=00000000
+        echo media_disc_query=
+        echo media_disc_track_count=0
         exit 1
     fi
 fi
