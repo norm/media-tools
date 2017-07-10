@@ -32,7 +32,7 @@ function download_sample_files {
         && youtube-dl \
                 -f 18 \
                 -o tests/source/tiny.mp4 \
-                H8XaHC4ilts
+                BE7gAEsI0XY
 
     # smaller AC3 source file
     # found via http://www.digital-digest.com/movies/movie_index.php?type=dolby
