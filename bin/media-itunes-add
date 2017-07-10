@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'add an unmanaged file to the iTunes library'
 help_text "$*" <<'EOF'
     Usage: media itunes-add <file>

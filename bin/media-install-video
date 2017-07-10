@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'file new media in the right place'
 help_text "$*" <<'EOF'
     Usage: media install-video <file>

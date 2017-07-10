@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'add metadata to an audio file'
 help_text "$*" <<'EOF'
     Usage: media tag-audio <file> <args>

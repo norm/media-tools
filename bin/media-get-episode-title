@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'lookup the name of a given TV episode'
 help_text "$*" <<'EOF'
     Usage: media get-episode-title <series> <season> <episode>

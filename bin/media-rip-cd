@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" false
 summary_line "$*" 'identify and rip tracks from a CD'
 help_text "$*" <<'EOF'
     Usage: media rip-cd

@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'convert a source video file to m4v'
 help_text "$*" <<'EOF'
     Usage: media convert-video <dir> <output_file> [<dvd track>]

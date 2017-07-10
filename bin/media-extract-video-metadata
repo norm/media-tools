@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'extract metadata from a directory name'
 help_text "$*" <<'EOF'
     Usage: media create-video-metadata <dir> [<track>]

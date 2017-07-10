@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" false
 summary_line "$*" 'something something tv episode directory'
 help_text "$*" <<'EOF'
     Usage: media make-episode-dir <series> <season> <episode> [<title>]

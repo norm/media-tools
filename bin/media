@@ -161,6 +161,13 @@ function cddb_read_disc {
         | sed '1d;$d'
 }
 
+function is_sub {
+    if [ "$1" = '--is-sub' ]; then
+        echo "$2"
+        exit
+    fi
+}
+
 function summary_line {
     if [ "$1" = '--summary' ]; then
         echo "$2"
@@ -199,15 +206,34 @@ function show_usage {
     echo '                  help  show more detailed help on a command'
     echo '           show-config  show the current configuration'
     echo '          show-version  show the current version of media-tools'
-    echo ''
     list_available_commands
 }
 
 function list_available_commands {
-    for command in $( compgen -c | grep '^media-' ); do
-        printf '%22s  ' "$( echo "$command" | cut -c7- )"
-        $command --summary
+    local -a commands=($( compgen -c | grep '^media-' ))
+    local main_commands
+    local subcommands
+
+    for command in "${commands[@]}"; do
+        if [ "$($command --is-sub)" = 'false' ]; then
+            main_commands="$(
+                    printf '%s\n%22s  %s' \
+                        "${main_commands}" \
+                        "$( echo "$command" | cut -c7- )" \
+                        "$( $command --summary )"
+                )"
+        else
+            subcommands="$(
+                    printf '%s\n%22s  %s' \
+                        "${subcommands}" \
+                        "$( echo "$command" | cut -c7- )" \
+                        "$( $command --summary )"
+                )"
+        fi
     done
+
+    echo "$main_commands"
+    echo "$subcommands"
 }
 
 function run_command {

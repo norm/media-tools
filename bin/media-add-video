@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source "$(which media)"
 
+is_sub "$*" false
 summary_line "$*" 'convert and add new media to iTunes library'
 help_text "$*" <<'EOF'
     Usage: media add-video <dir> [<dir>...]

@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'create metadata file from video content'
 help_text "$*" <<'EOF'
     Usage: media create-video-metadata <dir>

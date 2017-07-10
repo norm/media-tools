@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'extract metadata from a ripped CD'
 help_text "$*" <<'EOF'
     Usage: media extract-audio-metadata <file> <track> [<total>]

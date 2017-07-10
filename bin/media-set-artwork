@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'add artwork image(s) to a file'
 help_text "$*" <<'EOF'
     Usage: media set-artwork <file> <artwork>

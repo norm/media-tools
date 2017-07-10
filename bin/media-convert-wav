@@ -6,6 +6,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'convert a WAV file to high quality AAC'
 help_text "$*" <<'EOF'
     Usage: media convert-wav <source> <destination>

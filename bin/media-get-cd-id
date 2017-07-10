@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'calculate the CDDB ID and query string for the CD'
 help_text "$*" <<'EOF'
     Usage: media get-cd-id

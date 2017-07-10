@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source $(which media)
 
+is_sub "$*" true
 summary_line "$*" 'add metadata to a video file'
 help_text "$*" <<'EOF'
     Usage: media tag-video <file> <args>
