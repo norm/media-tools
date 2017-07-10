@@ -1,8 +1,8 @@
-cask 'handbrakecli'
-cask 'atomicparsley'
+brew 'handbrake'
+brew 'atomicparsley'
 
 # patched version of cdparanoia
-cask 'norm/versions/cdparanoia'
+brew 'norm/versions/cdparanoia'
 
 # required for testing
 brew 'bats'
