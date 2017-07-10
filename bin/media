@@ -82,6 +82,44 @@ function show_configuration {
     echo "tv_base       = $TV_BASE"
 }
 
+function show_configuration_help {
+    sed -e 's/^    //' <<EOF
+    The configurable settings of media-tools are:
+
+        auto_add_dir   where the iTunes "Automatically Add to iTunes" is
+                       (if set, add-cd will move converted audio to it)
+        cd_rip_dir     where the output of rip-cd is kept
+        convert_dir    where video conversion temp files are kept
+        ignore_itunes  set to stop add-video adding the file to iTunes
+        trash_dir      after converting, add-video will move video files here
+        tv_base        where to store your converted TV content
+
+    Each can be set two ways:
+
+      * set the environment variable MEDIA_<SETTING>, like so:
+
+          export MEDIA_CD_RIP_DIR=~/Desktop/cd-rips
+
+      * create a file like so:
+
+          # media config
+          trash_dir = /Volumes/trash
+
+        then set the environment variable MEDIA_CONFIG to point to it:
+
+          export MEDIA_CONFIG=~/.media.conf
+
+    Environment variables will override the contents of the file pointed at
+    by MEDIA_CONFIG when both are set. This allows you to keep your usual
+    settings in a file, but temporarily change them if necessary, without
+    editing the file (and subsequently forgetting to change it back).
+
+    The values are currently set to:
+
+EOF
+    show_configuration | sed -e 's/^/    /'
+}
+
 function media_lookup_atom {
     local -r file="$1"
     local -r atom="$2"
@@ -183,15 +221,31 @@ function help_text {
 }
 
 function show_help_for {
-    if [ -z "$1" ]; then
-        sed -e 's/^            //' <<EOF
-            Usage: media help <command>
+    case "$1" in
+        '')
+            echo 'Usage: media help <command>'
+            echo ''
+            echo 'Show more detailed help for the named command.'
+            ;;
 
-            Show more detailed help for the named command.
-EOF
-    else
-        media-"$1" --help
-    fi
+        show-config)
+            show_configuration_help
+            ;;
+
+        version)
+            # seriously?
+            echo 'List the current version of media-tools installed.'
+            ;;
+
+        help)
+            # INCEPTION HORN BLARE
+            echo 'Shows more detailed help for media commands.'
+            ;;
+
+        *)
+            media-"$1" --help
+            ;;
+    esac
 }
 
 function show_version {
