@@ -3,7 +3,7 @@
 reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
-MEDIA_VERSION=0.5
+MEDIA_VERSION=0.6
 
 
 function media_error {
@@ -168,6 +168,41 @@ function summary_line {
     fi
 }
 
+function help_text {
+    if [ "$1" = '--help' ]; then
+        sed -e 's/^    //'
+        exit
+    fi
+}
+
+function show_help_for {
+    if [ -z "$1" ]; then
+        sed -e 's/^            //' <<EOF
+            Usage: media help <command>
+
+            Show more detailed help for the named command.
+EOF
+    else
+        media-"$1" --help
+    fi
+}
+
+function show_version {
+    echo "media-tools version $MEDIA_VERSION"
+}
+
+function show_usage {
+    show_version
+    echo ''
+    echo 'Usage: media <command> [args...]'
+    echo ''
+    echo '                  help  show more detailed help on a command'
+    echo '           show-config  show the current configuration'
+    echo '          show-version  show the current version of media-tools'
+    echo ''
+    list_available_commands
+}
+
 function list_available_commands {
     for command in $( compgen -c | grep '^media-' ); do
         printf '%22s  ' "$( echo "$command" | cut -c7- )"
@@ -226,7 +261,11 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # being run as a command, not sourced by another script
     case "$1" in
         ''|-h|--help)
-            list_available_commands
+            show_usage
+            ;;
+
+        help)
+            show_help_for "$2"
             ;;
 
         show-config)
@@ -234,7 +273,7 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
             ;;
 
         version)
-            echo "media-tools version $MEDIA_VERSION"
+            show_version
             ;;
 
         *)  run_command "$@"

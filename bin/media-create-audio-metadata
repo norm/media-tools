@@ -4,7 +4,19 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'create metadata file from audio CD'
+help_text "$*" <<'EOF'
+    Usage: media create-audio-metadata
+
+    Queries CDDB and creates a metadata.conf file from the currently
+    inserted CD. You can override the location where these files are
+    written by setting the environment variable MEDIA_CD_RIP_DIR, or the
+    config setting cd_rip_dir.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `rip-cd`.
+EOF
 
 
 function number_to_letter {

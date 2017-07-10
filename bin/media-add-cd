@@ -4,7 +4,20 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'convert and add CD rips to the iTunes library'
+help_text "$*" <<'EOF'
+    Usage: media add-cd <dir> [<dir>...]
+
+    For each named directory containing a pre-ripped CD (eg. from using `media
+    rip-cd`), convert the WAV files to AAC, tag everything according to the
+    metadata.conf file, and add artwork (cover.jpg or cover.png) if it exists.
+
+    Finally, if the environment variable MEDIA_AUTO_ADD_DIR is set, or the
+    config setting auto_add_dir, move the output to that directory (the
+    intention is that you set this to the location of the "Automatically Add
+    to iTunes" directory in its library).
+EOF
 
 
 for rip in "$@"; do

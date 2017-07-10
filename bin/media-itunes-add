@@ -4,7 +4,18 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'add an unmanaged file to the iTunes library'
+help_text "$*" <<'EOF'
+    Usage: media itunes-add <file>
+
+    Adds the named file to iTunes as a referenced file (it stays in the
+    same place in the filesystem) rather than as a managed file (iTunes
+    moves it as it sees fit, based on the metadata).
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-video`.
+EOF
 
 
 function get_absolute_path {

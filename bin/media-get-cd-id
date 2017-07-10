@@ -4,7 +4,17 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'calculate the CDDB ID and query string for the CD'
+help_text "$*" <<'EOF'
+    Usage: media get-cd-id
+    
+    Calculate and output the CDDB ID, query string to find more details,
+    and total track count of the currently inserted CD.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `rip-cd`.
+EOF
 
 
 cd_output=$( mktemp )

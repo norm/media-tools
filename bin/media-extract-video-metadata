@@ -4,7 +4,21 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'extract metadata from a directory name'
+help_text "$*" <<'EOF'
+    Usage: media create-video-metadata <dir> [<track>]
+
+    Using the named directory, outputs the tag arguments needed by
+    AtomicParsley to add metadata to a video file. If the directory
+    contains a DVD rip, the episode(s) details are found in the named
+    track subsection of the `metadata.conf` file. If the directory
+    contains a single video file, the episode details are extracted
+    from the directory's name.
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-cd`.
+EOF
 
 
 function extract_metadata_from_directory_name {

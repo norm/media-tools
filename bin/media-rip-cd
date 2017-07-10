@@ -4,7 +4,19 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'identify and rip tracks from a CD'
+help_text "$*" <<'EOF'
+    Usage: media rip-cd
+
+    Queries CDDB for the details of the currently inserted CD, extracts the
+    tracks to WAV files, then ejects the CD. You can override the location
+    where these files are written by setting the environment variable
+    MEDIA_CD_RIP_DIR, or the config setting cd_rip_dir.
+
+    The files are stored in a directory named for the CDDB ID which may not
+    be unique, so it is possible for different CDs to clash.
+EOF
 
 
 eval "$( media-get-cd-id )"

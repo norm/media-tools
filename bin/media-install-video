@@ -4,7 +4,17 @@ set -e
 
 # shellcheck source=/dev/null
 source $(which media)
+
 summary_line "$*" 'file new media in the right place'
+help_text "$*" <<'EOF'
+    Usage: media install-video <file>
+
+    Moves the named video file to the correct location (found by querying the
+    file itself, not the directory name or a metadata file).
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `add-video`.
+EOF
 
 
 function media_install {

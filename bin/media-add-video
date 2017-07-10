@@ -4,7 +4,28 @@ set -e
 
 # shellcheck source=/dev/null
 source "$(which media)"
+
 summary_line "$*" 'convert and add new media to iTunes library'
+help_text "$*" <<'EOF'
+    Usage: media add-video <dir> [<dir>...]
+
+    Will convert the video in each named directory, and install the output in
+    the directory set by the environment variable MEDIA_TV_BASE, or the config
+    setting tv_base, in subdirectories named for the episode's details, eg
+    `$MEDIA_TV_BASE/House/Season 1/01 Everybody Lies.m4v`.
+
+    If the directory contains a DVD rip, the episode(s) details are found in
+    the `metadata.conf` file -- which is created if needed when `add-video`
+    is first invoked on the directory.
+
+    If the directory contains a single video file, the episode details are
+    extracted from the directory's name which should be of the form
+    `House - 1x01 - Everybody Lies`. These can be created in the right format
+    with the command `make-episode-dir`.
+
+    Currently only TV episodes are supported, and must have both a season and
+    an episode number.
+EOF
 
 
 function clean_up_converted {
