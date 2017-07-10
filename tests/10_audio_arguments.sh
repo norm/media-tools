@@ -107,3 +107,76 @@ source tests/lib.sh
     [ "${args[8]}" = '--aencoder' ]
     [ "${args[9]}" = 'copy:ac3,copy:ac3' ]
 }
+
+@test "default VIDEO_LANG includes multiple languages" {
+    needs_source tests/source/multiple-langs.mkv
+
+    local -a expects=(
+        '--audio 1,2'
+        '--ab 640,640'
+        '--mixdown 6ch,6ch'
+        '--arate Auto,Auto'
+        '--aencoder copy:ac3,copy:ac3'
+    )
+
+    get_audio_arguments tests/source/multiple-langs.mkv
+    run get_audio_arguments tests/source/multiple-langs.mkv
+
+    local count=0
+    for line in "${expects[@]}"; do
+        echo "-> ${expects[count]}"
+        echo "   ${lines[count]}"
+        [ "${expects[$count]}" = "${lines[$count]}" ]
+        let count=count+1
+    done
+}
+
+@test "setting VIDEO_LANG excludes unmatching languages" {
+    needs_source tests/source/multiple-langs.mkv
+
+    local -a expects=(
+        '--audio 2'
+        '--ab 640'
+        '--mixdown 6ch'
+        '--arate Auto'
+        '--aencoder copy:ac3'
+    )
+
+    export MEDIA_VIDEO_LANG=eng
+    source bin/media-convert-video
+
+    get_audio_arguments tests/source/multiple-langs.mkv
+    run get_audio_arguments tests/source/multiple-langs.mkv
+
+    local count=0
+    for line in "${expects[@]}"; do
+        echo "-> ${expects[count]}"
+        echo "   ${lines[count]}"
+        [ "${expects[$count]}" = "${lines[$count]}" ]
+        let count=count+1
+    done
+}
+
+@test "setting VIDEO_LANG includes unknown languages" {
+    local -a expects=(
+        '--audio 1,2'
+        '--ab 160,640'
+        '--mixdown stereo,6ch'
+        '--arate 48,Auto'
+        '--aencoder ca_aac,copy:ac3'
+    )
+
+    export MEDIA_VIDEO_LANG=eng
+    source bin/media-convert-video
+
+    get_audio_arguments tests/source/multiple.divx
+    run get_audio_arguments tests/source/multiple.divx
+
+    local count=0
+    for line in "${expects[@]}"; do
+        echo "-> ${expects[count]}"
+        echo "   ${lines[count]}"
+        [ "${expects[$count]}" = "${lines[$count]}" ]
+        let count=count+1
+    done
+}

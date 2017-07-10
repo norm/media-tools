@@ -80,6 +80,7 @@ function show_configuration {
     echo "ignore_itunes = $IGNORE_ITUNES"
     echo "trash_dir     = $TRASH_DIR"
     echo "tv_base       = $TV_BASE"
+    echo "video_lang    = $VIDEO_LANG"
 }
 
 function show_configuration_help {
@@ -93,6 +94,9 @@ function show_configuration_help {
         ignore_itunes  set to stop add-video adding the file to iTunes
         trash_dir      after converting, add-video will move video files here
         tv_base        where to store your converted TV content
+        video_lang     the three-letter code for preferred audio language in
+                       video content (eg eng, ita, spa); set to 'all' or '*'
+                       to accept all languages (which is also the default)
 
     Each can be set two ways:
 
@@ -304,6 +308,7 @@ CONVERT_DIR=/tmp
 IGNORE_ITUNES=
 TRASH_DIR=
 TV_BASE=/files/tv
+VIDEO_LANG=all
 cddb_hello=$(
     simple_encode \
         "$USER" \
@@ -326,6 +331,8 @@ if [ -n "$MEDIA_CONFIG" ]; then
     [ -n "$trash" ] && TRASH_DIR="${trash}"
     tv="$( config_key "$MEDIA_CONFIG" tv_base )"
     [ -n "$tv" ] && TV_BASE="${tv}"
+    lang="$( config_key "$MEDIA_CONFIG" video_lang )"
+    [ -n "$lang" ] && VIDEO_LANG="${lang}"
 fi
 
 # override with env, which takes precedence over file
@@ -335,6 +342,7 @@ CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
 TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
+VIDEO_LANG="${MEDIA_VIDEO_LANG:=$VIDEO_LANG}"
 
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then

@@ -49,7 +49,7 @@ function get_stream_keywords {
             )
             \( iso639-2: \s+ (\w+) \)       # 4: language code
             .* $
-        }{\1 \2 \3 \4}x;
+        }{\1 \2 \3 \4 \5}x;
         print;
     '
 }
@@ -57,6 +57,20 @@ function get_stream_keywords {
 function comma_separated {
     local -r IFS=","
     echo "$*"
+}
+
+function matching_language {
+    local -r lang="$1"
+
+    case "$VIDEO_LANG" in
+        ''|\*|all|$lang)
+            return 0;;
+        *)
+            if [ "$lang" = 'und' ]; then
+                return 0
+            fi
+            return 1;;
+    esac
 }
 
 function get_audio_arguments {
@@ -77,6 +91,10 @@ function get_audio_arguments {
 
     while IFS= read -r line; do
         read -r stream quality channel language < <( get_stream_keywords "$line" )
+
+        if ! matching_language "$language"; then
+            continue
+        fi
 
         arg_channel+=($stream)
         if [ "$quality" = 'AC3' ]; then
