@@ -18,8 +18,9 @@ directly or by `media do-thing` by preference.
 
  1. clone the repo
  2. `./script/bootstrap` to install dependencies
- 3. `./script/test` to run the tests (optional, will download some video
-    files from the internet)
+ 3. `./script/test` to run the tests — this step is optional, and will download
+    some video files from the internet (even then, some tests will not run 
+    because they expect CD and DVD rips that you most likely won't have)
  4. `make install`
 
 
