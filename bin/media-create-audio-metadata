@@ -1,0 +1,129 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'create metadata file from audio CD'
+
+
+function number_to_letter {
+    echo "$@" | tr '0-9' 'a-j'
+}
+
+function letter_to_number {
+    echo "$@" | tr 'a-j' '0-9'
+}
+
+function cddb_entry {
+    local details="$1"
+    local entry="$2"
+
+    # DTITLE contains both artist and disc name, which is frustrating, as
+    # we have to rely on the convention that it will be split correctly
+    case "$entry" in
+        DALBUM)
+            echo "$details" \
+                    | grep DTITLE= \
+                    | awk -F= '{ print $2 }' \
+                    | awk -F' / ' '{ print $2 }'
+            ;;
+        DARTIST)
+            echo "$details" \
+                    | grep DTITLE= \
+                    | awk -F= '{ print $2 }' \
+                    | awk -F' / ' '{ print $1 }'
+            ;;
+        *)
+            echo "$details" \
+                    | grep "${entry}=" \
+                    | awk -F= '{ print $2 }'
+            ;;
+    esac
+}
+
+function create_cd_metadata {
+    local -r genre=$( echo "$1" | cut -d' ' -f1 )
+    local -r id=$( echo "$1" | cut -d' ' -f2 )
+    local -r details="$( cddb_read_disc "$genre" "$id" )"
+
+    working_dir="${CD_RIP_DIR}/${id}"
+    metadata_file="${working_dir}/metadata.conf"
+    mkdir -p "$working_dir"
+
+    sed -e 's/^        //'> "$metadata_file" <<EOF
+        album = $(cddb_entry "$details" DALBUM)
+        artist = $(cddb_entry "$details" DARTIST)
+        compilation = false
+        disk = 1/1
+        genre = $(cddb_entry "$details" DGENRE)
+        purchaseDate = 1970-01-01T12:00:00Z
+        year = $(cddb_entry "$details" DYEAR)
+
+        # tracks can also over-ride options, such as:
+        #   artist = <track artist>
+        #   genre  = <track genre>
+        #   year   = <track year>
+        #
+        # other options:
+        #   grouping = <grouping>
+        #   comment = [instrumental]
+EOF
+
+    local track=0
+    while true; do
+        local title
+        local section
+
+        # FIXME auto apply title case?
+        title="$(cddb_entry "$details" "TTITLE$track")"
+        [ -z "$title" ] && break
+
+        # increment before echo, because CDDB is 0 indexed
+        let track=track+1
+        section="$( printf '%02d' $track )"
+
+        sed -e 's/^            //' >> "$metadata_file" <<EOF
+
+            [$section]
+            title = ${title}
+EOF
+    done
+}
+
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+    eval "$( media-get-cd-id )"
+
+    # grab each match as an array entry; use the first as the default
+    declare -a matches
+    IFS=$'\n' matches=($( cddb_matches "$media_disc_query" ))
+    match="${matches[0]}"
+
+    # if there is only one match, use it; otherwise prompt user to choose
+    if [ "${#matches[@]}" -gt 1 ]; then
+        echo "Multiple matches found:"
+        echo ''
+
+        count=0
+        for match in "${matches[@]}"; do
+            printf '%4s)  %s\n' \
+                "$( number_to_letter $count )" \
+                "$( echo "$match" | cut -d' ' -f3- )"
+            let count=count+1
+        done
+
+        read -n1 -p"Choose which entry matches your disc: " choice
+        echo ''
+
+        number="$( letter_to_number "$choice" )"
+        match="${matches[$number]}"
+    fi
+
+    if [ -z "$match" ]; then
+        echo "'$choice' is not a valid choice."
+        exit 1
+    fi
+
+    create_cd_metadata "$match"
+fi

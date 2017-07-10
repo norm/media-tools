@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+source tests/lib.sh
+
+
 @test "test metadata from a single video file" {
     OUTPUT_FILE=$( mktemp )
 
@@ -8,6 +11,8 @@
 }
 
 @test "test metadata from a DVD" {
+    needs_source tests/source/BUFFY_S4D3
+
     OUTPUT_FILE=$( mktemp )
 
     media-create-video-metadata tests/source/BUFFY_S4D3 > $OUTPUT_FILE

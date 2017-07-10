@@ -1,0 +1,42 @@
+#!/bin/bash
+# shellcheck disable=SC2034
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'convert a WAV file to high quality AAC'
+
+# from https://developer.apple.com/library/content/technotes/tn2271/_index.html
+STRATEGY_CBR=0
+STRATEGY_ABR=1
+STRATEGY_VBR_CONSTRAINED=2
+STRATEGY_VBR=3
+VBR_HIGHEST=127
+
+
+input="$1"
+output="$2"
+temp="$( mktemp ).caf"
+
+# conversion details lightly adapted from "Mastered for iTunes":
+# http://images.apple.com/itunes/mastered-for-itunes/docs/mastered_for_itunes.pdf
+
+# convert to .caf, add Sound Check
+afconvert \
+    -d 0 \
+    -f caff \
+    --soundcheck-generate \
+        "$input" "$temp"
+
+# encode to AAC
+afconvert \
+    -f m4af \
+    -d aac \
+    -s $STRATEGY_VBR \
+    -u vbrq $VBR_HIGHEST \
+    -u pgcm 2 \
+    --soundcheck-read \
+        "$temp" "$output"
+
+rm "$temp"

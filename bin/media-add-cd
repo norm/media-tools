@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'convert and add CD rips to the iTunes library'
+
+
+for rip in "$@"; do
+    # assume in rip directory if argument doesn't exist
+    [ ! -d "$rip" ] \
+        && rip="$CD_RIP_DIR/$rip"
+
+    if [ ! -d "$rip" ]; then
+        echo "** Unable to find directory '$rip'"
+        exit 1
+    fi
+
+    last_track=$(
+        basename "$( find "$rip/wavs/" -type f | tail -1 )" .wav
+    )
+
+    for wav in "$rip/wavs/"*; do
+        track=$( basename "$wav" .wav )
+        dest="${rip}/${track}.m4a"
+
+        echo \
+            "$track/$last_track" \
+            "$( config_key "$rip/metadata.conf" title "$track" )"
+
+        media-convert-wav "$wav" "$dest"
+
+        # FIXME -- why does this not work when quoted, but others do?
+        # shellcheck disable=SC2046
+        eval media-tag-audio \
+            "$dest" \
+            $(
+                media-extract-audio-metadata \
+                    "${rip}/metadata.conf" \
+                    "$track" \
+                    "$last_track"
+            )
+
+        # add cover art
+        [ -f "$rip/cover.jpg" ] \
+            && media-set-artwork "$dest" "$rip/cover.jpg"
+        [ -f "$rip/cover.png" ] \
+            && media-set-artwork "$dest" "$rip/cover.png"
+
+        # add to iTunes
+        [ -n "$AUTO_ADD_DIR" ] \
+            && mv "$dest" "$AUTO_ADD_DIR/${track}.m4a"
+    done
+done

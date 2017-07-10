@@ -3,6 +3,8 @@
 reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
+MEDIA_VERSION=0.5
+
 
 function media_error {
     printf "${bold}${red}*** %s${reset}\n" "$*"
@@ -34,7 +36,46 @@ function config_key {
             | tail -1
 }
 
+function config_as_atoms {
+    local -r filename="$1"
+    local -r section="${2:-____}"
+
+    perl -E "
+        my \$ignore_section = 0;
+        my \$section = '$section';
+        my %values;
+
+        while (<>) {
+            s/^ *(.*?) *$/\1/;
+            next if m/^$/;
+            next if m/^#/;
+
+            if (m/^\[/) {
+                if (m/^\[\$section\]/) {
+                    \$ignore_section = 0;
+                    next;
+                }
+                else {
+                    \$ignore_section = 1;
+                }
+            }
+
+            next if \$ignore_section;
+
+            chomp;
+            my( \$key, \$value ) = split m/ *= */;
+            \$values{\$key} = \$value;
+        }
+
+        for my \$key ( sort keys %values ) {
+            say \"\--\$key=\\\"\$values{\$key}\\\"\";
+        }
+    " "$filename"
+}
+
 function show_configuration {
+    echo "auto_add_dir  = $AUTO_ADD_DIR"
+    echo "cd_rip_dir    = $CD_RIP_DIR"
     echo "convert_dir   = $CONVERT_DIR"
     echo "ignore_itunes = $IGNORE_ITUNES"
     echo "trash_dir     = $TRASH_DIR"
@@ -71,6 +112,55 @@ function extract_chapters {
     awk "/^  \+ chapters:/{flag=1;next} /^  \+/{flag=0} flag"
 }
 
+function simple_encode {
+    # shellcheck disable=SC2001
+    echo "$*" | sed -e 's/ /+/g'
+}
+
+function cddb_cmd {
+    # last line removes carriage returns from output, because ugh
+    curl -s --get \
+        --data "cmd=$( simple_encode "$*" )" \
+        --data "hello=$cddb_hello" \
+        --data "proto=6" \
+            'http://freedb.freedb.org/~cddb/cddb.cgi' \
+                    | tr -d '\r'
+}
+
+function cddb_matches {
+    local -r disc_id="$1"
+
+    local -r matches=$( cddb_cmd "cddb query $disc_id" )
+    local -r code=$( echo "$matches" | head -1 | cut -c1-3 )
+
+    case "$code" in
+        200)    # exact match, strip the status code
+            echo "$matches" \
+                | cut -d' ' -f2-
+            ;;
+
+        210)    # multiple matches, strip the CDDB protocol lines
+            echo "$matches" \
+                | sed '1d;$d'
+            ;;
+
+        *)      # shrug
+            2>&1 echo "Unknown status code: $code"
+            2>&1 echo ''
+            2>&1 echo "$matches"
+            ;;
+    esac
+}
+
+function cddb_read_disc {
+    local -r genre="$1"
+    local -r disc_id="$2"
+
+    # delete the first and last lines (CDDB protocol noise), and
+    cddb_cmd "cddb read $genre $disc_id" \
+        | sed '1d;$d'
+}
+
 function summary_line {
     if [ "$1" = '--summary' ]; then
         echo "$2"
@@ -93,13 +183,26 @@ function run_command {
 }
 
 # default configuration
+AUTO_ADD_DIR=
+CD_RIP_DIR="${HOME}/Music/rips"
 CONVERT_DIR=/tmp
 IGNORE_ITUNES=
 TRASH_DIR=
 TV_BASE=/files/tv
+cddb_hello=$(
+    simple_encode \
+        "$USER" \
+        "$(hostname)" \
+        media-tools \
+        "$MEDIA_VERSION"
+)
 
 # override config with file
 if [ -n "$MEDIA_CONFIG" ]; then
+    auto_add_dir="$( config_key "$MEDIA_CONFIG" auto_add_dir )"
+    [ -n "$auto_add_dir" ] && AUTO_ADD_DIR="${auto_add_dir}"
+    cd_rip_dir="$( config_key "$MEDIA_CONFIG" cd_rip_dir )"
+    [ -n "$cd_rip_dir" ] && CD_RIP_DIR="${cd_rip_dir}"
     convert="$( config_key "$MEDIA_CONFIG" convert_dir )"
     [ -n "$convert" ] && CONVERT_DIR="${convert}"
     ignore="$( config_key "$MEDIA_CONFIG" ignore_itunes )"
@@ -111,6 +214,8 @@ if [ -n "$MEDIA_CONFIG" ]; then
 fi
 
 # override with env, which takes precedence over file
+AUTO_ADD_DIR="${MEDIA_AUTO_ADD_DIR:=$AUTO_ADD_DIR}"
+CD_RIP_DIR="${MEDIA_CD_RIP_DIR:=$CD_RIP_DIR}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"

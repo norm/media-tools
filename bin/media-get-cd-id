@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+summary_line "$*" 'calculate the CDDB ID and query string for the CD'
+
+
+cd_output=$( mktemp )
+
+# allow saved input from cdparanoia for testing
+if [ -n "$MEDIA_TESTING_CD_QUERY_FILE" ]; then
+    cat "$MEDIA_TESTING_CD_QUERY_FILE" > "$cd_output"
+else
+    cdparanoia --query 2> "$cd_output"
+fi
+
+# shellcheck disable=SC2002
+cat "$cd_output" | perl -E '
+        my $current_track = 1;
+        my $lead_out_track = 162;
+
+        my $track_regexp = qr{
+                ^
+                track_num [ ] = [ ] (\d+) [ ]
+                start [ ] sector [ ] \d+ [ ] msf: [ ]
+                (\d+),
+                (\d+),
+                (\d+)
+            }x;
+
+        my $track_count = 0;
+        my $seconds_first;
+        my $seconds_last;
+        my $cddbp_sum;
+        my $seconds_begin;
+        my %tracks;
+        my @offsets;
+
+        while ( my $line = <> ) {
+            if ( $line =~ m{Unable to open disc} ) {
+                say "00000000";
+                exit 1;
+            }
+
+            if ( $line =~ $track_regexp ) {
+                my $number = $1;
+                my $frame_offset = (($2 * 60 + $3) * 75) + $4;
+                $seconds_begin = int( $frame_offset / 75 );
+
+                $tracks{$number} = $seconds_begin;
+                $seconds_last = $seconds_begin
+                    if $number == $lead_out_track;
+
+                next if $number >= 160;
+
+                $track_count++;
+                map { $cddbp_sum += $_; } split(//, $seconds_begin);
+                push @offsets, $frame_offset;
+            }
+        }
+
+        my $track_id = sprintf "%02x%04x%02x",
+                ( $cddbp_sum % 255 ),
+                $tracks{$lead_out_track} - $tracks{1},
+                (keys %tracks) - 3;
+
+        say "media_disc_id=$track_id";
+        say "media_disc_query=$track_id+$track_count+",
+            join( "+", @offsets ),
+            "+$seconds_last";
+        say "media_disc_track_count=$track_count";
+    '
+
+rm "$cd_output"

@@ -96,3 +96,26 @@ INI_FILE=tests/config/example.ini
     echo "** $value"
     [ "$value" == 'bob' ]
 }
+
+@test "read all keys from a section" {
+    local -a expects=(
+         '--album="Dignity"'
+         '--artist="Deacon Blue"'
+         '--compilation="false"'
+         '--disk="1/1"'
+         '--genre="Easy Listening"'
+         '--purchaseDate="1970-01-01T12:00:00Z"'
+         $'--title="Bethelehem\'s gate (Piano and vocal version)"'
+         '--year="1994"'
+    )
+
+    config_as_atoms tests/config/metadata_cd.conf 04
+    run config_as_atoms tests/config/metadata_cd.conf 04
+
+    local count=0
+    for line in "${expects[@]}"; do
+        echo "count=$count ${expects[$count]} = ${lines[$count]}"
+        [ "${expects[$count]}" = "${lines[$count]}" ]
+        let count=count+1
+    done
+}
