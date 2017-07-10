@@ -125,12 +125,12 @@ function convert_and_add_from_directory {
 
     media-convert-video "$video" "$output"
 
-    eval media-tag-video "$output" "$( media-extract-video-metadata "$dir" )"
+    eval media-tag-video \""$output\"" "$( media-extract-video-metadata "$dir" )"
 
     [ -f "$dir/poster.jpg" ] && media-set-artwork "$output" "$dir/poster.jpg"
     [ -f "$dir/poster.png" ] && media-set-artwork "$output" "$dir/poster.png"
 
-    path=$( eval media-install-video "$output" )
+    path=$( eval media-install-video \""$output\"" )
     if [ -z "$IGNORE_ITUNES" ]; then
         media-itunes-add "$path"
     fi
