@@ -11,6 +11,7 @@ MEDIA_SCRIPTS = media \
 	media-get-cd-id \
 	media-get-episode-title \
 	media-get-youtube-video \
+	media-get-youtube-playlist \
 	media-install-video \
 	media-itunes-add \
 	media-make-episode-dir \
