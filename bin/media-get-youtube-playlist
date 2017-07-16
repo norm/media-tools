@@ -8,14 +8,11 @@ source $(which media)
 is_sub "$*" false
 summary_line "$*" 'download the videos in a YouTube playlist'
 help_text "$*" <<'EOF'
-    Usage: media get-youtube-playlist [<options>] <id> [<name>]
+    Usage: media get-youtube-playlist [<options>] <id>
 
     Download all of the videos in the YouTube playlist <id>, and create
-    processing directories for them, using the series <name>. If <name>
-    is not supplied, use the playlist's name on YouTube.
-
-    The metadata uses the <name> argument for the TV series. If it is
-    not provided, the title of the playlist is used instead.
+    processing directories for them, using the title of the playlist as
+    the name of the TV series.
 
     Options:
         -a, --add
@@ -28,6 +25,9 @@ help_text "$*" <<'EOF'
         -s <season>, --season <season>
             use <season> as the season number (rather than using the
             year the video was uploaded to YouTube)
+        -t <name>, --title <name>
+            use <name> instead of the title of the playlist
+            as the series name
 EOF
 
 
@@ -57,6 +57,7 @@ function sanitised_title {
 
 reversed=
 playlist_season=
+playlist_title=
 add_videos=0
 declare -a to_add
 
@@ -64,12 +65,12 @@ while [ "${1:0:1}" = '-' ]; do
     case "$1" in
         -a|--add)       add_videos=1; shift;;
         -r|--reversed)  reversed='--playlist-reverse'; shift;;
-        -s|--season)    playlist_season="$2"; shift; shift;;
+        -s|--season)    playlist_season="$2"; shift 2;;
+        -t|--title)     playlist_title="$2"; shift 2;;
     esac
 done
 
 playlist_id="$1"
-playlist_title="$2"
 playlist_cache_dir="${CACHE_DIR}/${playlist_id}"
 playlist_output_dir="${CONVERT_DIR}/${playlist_id}"
 playlist_data="${playlist_cache_dir}/playlist.json"
