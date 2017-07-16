@@ -180,3 +180,30 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
     media-get-youtube-playlist --reversed $PLAYLIST
     dir_is_empty "$MEDIA_CONVERT_DIR"
 }
+
+@test "adds videos to iTunes" {
+    declare -a VIDEOS=(
+        ppqiWVaO3rg
+        EyI-5e1IrEo
+        BE7gAEsI0XY
+    )
+
+    export MEDIA_CACHE_DIR=$( mktemp -d )
+    export MEDIA_CONVERT_DIR=$( mktemp -d )
+    export MEDIA_IGNORE_ITUNES=1
+    export MEDIA_TV_BASE=$( mktemp -d )
+
+    dir_is_empty "$MEDIA_TV_BASE"
+
+    media-get-youtube-playlist --add $PLAYLIST
+
+    # media-add-video should have installed converted TV
+    [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 3 ]
+
+    local -r series_dir="$MEDIA_TV_BASE/media-tools testing"
+    [ -f "$series_dir/Season 2010/01 Grange Hill 1978 intro (HQ).m4v" ]
+    [ -f "$series_dir/Season 2012/01 Doctor Who opening theme Peter Davison (5th Doctor).m4v" ]
+    [ -f "$series_dir/Season 2012/02 Doctor Who Clean Tom Baker Opening 1980-81 (Higher Quality).m4v" ]
+
+    rm -rf "$MEDIA_CACHE_DIR" "$MEDIA_CONVERT_DIR" "$MEDIA_TV_BASE"
+}

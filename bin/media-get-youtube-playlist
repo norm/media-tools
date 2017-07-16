@@ -18,6 +18,9 @@ help_text "$*" <<'EOF'
     not provided, the title of the playlist is used instead.
 
     Options:
+        -a, --add
+            once downloaded, add the videos to iTunes (using the
+            `add-video` command)
         -r, --reversed
             indicates the playlist should be processed in reverse order
             (where the most recently added video is the first in the 
@@ -54,9 +57,12 @@ function sanitised_title {
 
 reversed=
 playlist_season=
+add_videos=0
+declare -a to_add
 
 while [ "${1:0:1}" = '-' ]; do
     case "$1" in
+        -a|--add)       add_videos=1; shift;;
         -r|--reversed)  reversed='--playlist-reverse'; shift;;
         -s|--season)    playlist_season="$2"; shift; shift;;
     esac
@@ -89,7 +95,7 @@ video_entries=$(
 video_total=$( echo "$video_entries" | wc -l | tr -d ' ' )
 video_count=1
 
-echo "$video_entries" | while IFS= read -r entry; do
+while IFS= read -r entry; do
     video_id=$( echo "$entry" | jq -r .id )
     video_title=$( echo "$entry" | jq -r .title )
     cache_file="${playlist_cache_dir}/${video_id}.info.json"
@@ -131,6 +137,12 @@ EOF
     media_success "  + ${season}x${episode} $title"
     echo "    $destination"
     echo ''
-done
+
+    to_add+=("$destination")
+done < <( echo "$video_entries" )
 
 media_echo ''
+
+if [ $add_videos = 1 ]; then
+    media-add-video "${to_add[@]}"
+fi
