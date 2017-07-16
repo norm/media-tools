@@ -10,6 +10,7 @@ MEDIA_SCRIPTS = media \
 	media-extract-video-metadata \
 	media-get-cd-id \
 	media-get-episode-title \
+	media-get-youtube-video \
 	media-install-video \
 	media-itunes-add \
 	media-make-episode-dir \
