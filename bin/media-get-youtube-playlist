@@ -122,6 +122,10 @@ while IFS= read -r entry; do
     [ $exit_code = 2 ] \
         && exit 2
 
+    # error fetching video, skip
+    [ $exit_code = 1 ] \
+        && continue
+
     destination="${playlist_output_dir}/${video_id}"
     upload_date=$(
         jq -r .upload_date "${destination}/${video_id}.info.json"
