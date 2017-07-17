@@ -73,8 +73,13 @@ source tests/lib.sh
 
     media-add-video "$source"
 
+    # source directory moved to trash, without useless resized image file
+    [ -d "$MEDIA_TRASH_DIR/House - 1x01 - Pilot" ]
+    [ -f "$MEDIA_TRASH_DIR/House - 1x01 - Pilot/tiny.mp4" ]
+    [ -f "$MEDIA_TRASH_DIR/House - 1x01 - Pilot/poster.jpg" ]
+    [ ! -f "$MEDIA_TRASH_DIR/House - 1x01 - Pilot/poster-resized-4482.jpg" ]
+
     [ $( count_files_in_dir "$MEDIA_TV_BASE" ) = 1 ]
-    [ $( count_files_in_dir "$MEDIA_TRASH_DIR" ) = 1 ]
     dir_is_empty "$convert_dir"
 
     local installed="$MEDIA_TV_BASE/House/Season 1/01 Pilot.m4v"

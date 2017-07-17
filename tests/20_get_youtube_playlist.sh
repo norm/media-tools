@@ -250,6 +250,7 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
     export MEDIA_CACHE_DIR=$( mktemp -d )
     export MEDIA_CONVERT_DIR=$( mktemp -d )
     export MEDIA_IGNORE_ITUNES=1
+    export MEDIA_TRASH_DIR=$( mktemp -d )
     export MEDIA_TV_BASE=$( mktemp -d )
 
     dir_is_empty "$MEDIA_TV_BASE"
@@ -263,6 +264,8 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
     [ -f "$series_dir/Season 2010/01 Grange Hill 1978 intro (HQ).m4v" ]
     [ -f "$series_dir/Season 2012/01 Doctor Who opening theme Peter Davison (5th Doctor).m4v" ]
     [ -f "$series_dir/Season 2012/02 Doctor Who Clean Tom Baker Opening 1980-81 (Higher Quality).m4v" ]
+
+    dir_is_empty "$MEDIA_CONVERT_DIR"
 
     rm -rf "$MEDIA_CACHE_DIR" "$MEDIA_CONVERT_DIR" "$MEDIA_TV_BASE"
 }
