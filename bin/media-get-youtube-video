@@ -86,6 +86,8 @@ function download_youtube_video {
             retry="$video_id timed out"
         elif grep -q 'Traceback (most' "$STDERR"; then
             retry="python error in youtube-dl"
+        elif grep -q 'ERROR: Interrupted by user' "$STDERR"; then
+            exit 2
         else
             media_warning "Unknown error:"
             echo '-- stdout --'

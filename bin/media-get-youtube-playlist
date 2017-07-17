@@ -109,10 +109,18 @@ while IFS= read -r entry; do
     [ -f "$cache_file" ] \
         && continue
 
+    # temporarily disable errexit in order to capture exit code
+    set +e
     media-get-youtube-video \
         "$video_id" \
-        "$playlist_id" \
-            || continue  # because a missing video is not an error
+        "$playlist_id"
+
+    exit_code=$?
+    set -e
+
+    # user interruption (^C)
+    [ $exit_code = 2 ] \
+        && exit 2
 
     destination="${playlist_output_dir}/${video_id}"
     upload_date=$(
