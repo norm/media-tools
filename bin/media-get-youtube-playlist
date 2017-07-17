@@ -154,13 +154,11 @@ EOF
     mv "${destination}/${video_id}.info.json" "$cache_file"
 
     media_success "  + ${season}x${episode} $title"
-    echo "    $destination"
-    echo ''
 
     to_add+=("$destination")
 done < <( echo "$video_entries" )
 
-media_echo ''
+media_success "    $playlist_title done"
 
 if [ $add_videos = 1 ]; then
     media-add-video "${to_add[@]}"
