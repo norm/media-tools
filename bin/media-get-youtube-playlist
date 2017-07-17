@@ -76,7 +76,7 @@ playlist_output_dir="${CONVERT_DIR}/${playlist_id}"
 playlist_data="${playlist_cache_dir}/playlist.json"
 mkdir -p "$playlist_cache_dir"
 
-media_status_line "    getting playlist"
+media_status_line "    getting playlist ${playlist_title:-$playlist_id}"
 
 youtube-dl \
     $reversed \
