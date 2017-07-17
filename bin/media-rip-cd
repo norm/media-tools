@@ -42,7 +42,7 @@ printf "Ripping '%s' by '%s'\n -> %s\n\n" \
 
 # shellcheck disable=SC2154
 for track in $(seq 1 "$media_disc_track_count"); do
-    track_number=$( printf '%02d' $track )
+    track_number=$( printf '%02d' "$track" )
     title=$( config_key "$metadata" title "$track_number" )
     output_file="${working_dir}/wavs/${track_number}.wav"
 
