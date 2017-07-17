@@ -4,22 +4,21 @@ reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
-MEDIA_VERSION=0.7
+((status_width=$(tput cols) - 2))
+MEDIA_VERSION=0.7.1
 
 
 function media_status_line {
     # print a status update, which will be replaced by the next output;
-    # it is truncated at 79 chars (but also padded with spaces to 79 chars
-    # to overwrite anything previously output)
+    # it is truncated to almost the width of the terminal (but also padded
+    # with spaces to overwrite anything previously output)
     local -r line="$*"
-    printf "%-79s\r" "${line::79}"
-    sleep 0.025
+    printf "%-${status_width}s\r" "${line::${status_width}}"
 }
 
 function media_echo {
-    # output text, but padded with spaces to 79 chars to overwrite any
-    # previous status lines
-    printf "%-79s\n" "$*"
+    # output text, bkut padded with spaces to overwrite any previous status
+    printf "%-${status_width}s\n" "$*"
 }
 
 function media_error {
@@ -28,15 +27,13 @@ function media_error {
 }
 
 function media_warning {
-    # output text, but padded with spaces to 79 chars to overwrite any
-    # previous status lines
-    printf "${bold}${red}*** %-75s${reset}\n" "$*"
+    # output text, bkut padded with spaces to overwrite any previous status
+    printf "${bold}${red}%-${status_width}s${reset}\n" "*** $*"
 }
 
 function media_success {
-    # output text, but padded with spaces to 79 chars to overwrite any
-    # previous status lines
-    printf "${bold}${green}%-79s${reset}\n" "$*"
+    # output text, bkut padded with spaces to overwrite any previous status
+    printf "${bold}${green}%-${status_width}s${reset}\n" "$*"
 }
 
 function config_key {
