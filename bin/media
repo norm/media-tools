@@ -3,12 +3,40 @@
 reset="\e[0m"
 bold="\e[1m"
 red="\e[31m"
-MEDIA_VERSION=0.6.2
+green="\e[32m"
+MEDIA_VERSION=0.7
 
+
+function media_status_line {
+    # print a status update, which will be replaced by the next output;
+    # it is truncated at 79 chars (but also padded with spaces to 79 chars
+    # to overwrite anything previously output)
+    local -r line="$*"
+    printf "%-79s\r" "${line::79}"
+    sleep 0.025
+}
+
+function media_echo {
+    # output text, but padded with spaces to 79 chars to overwrite any
+    # previous status lines
+    printf "%-79s\n" "$*"
+}
 
 function media_error {
-    printf "${bold}${red}*** %s${reset}\n" "$*"
+    media_warning "$*"
     exit 1
+}
+
+function media_warning {
+    # output text, but padded with spaces to 79 chars to overwrite any
+    # previous status lines
+    printf "${bold}${red}*** %-75s${reset}\n" "$*"
+}
+
+function media_success {
+    # output text, but padded with spaces to 79 chars to overwrite any
+    # previous status lines
+    printf "${bold}${green}%-79s${reset}\n" "$*"
 }
 
 function config_key {
@@ -73,8 +101,15 @@ function config_as_atoms {
     " "$filename"
 }
 
+function filesystem_sanitised_string {
+    echo "$@" \
+        | sed -e 's/[\/:|]/ - /g' \
+              -e 's/  */ /g'
+}
+
 function show_configuration {
     echo "auto_add_dir  = $AUTO_ADD_DIR"
+    echo "cache_dir     = $CACHE_DIR"
     echo "cd_rip_dir    = $CD_RIP_DIR"
     echo "convert_dir   = $CONVERT_DIR"
     echo "ignore_itunes = $IGNORE_ITUNES"
@@ -83,12 +118,46 @@ function show_configuration {
     echo "video_lang    = $VIDEO_LANG"
 }
 
+function get_tv_series_poster {
+    # find the most relevant poster image (prefers PNG over JPEG)
+    local -r series="$1"
+    local -r season="$2"
+
+    if [ -f "$TV_BASE/$series/Season $season/poster.png" ]; then
+        echo "$TV_BASE/$series/Season $season/poster.png"
+        return
+    fi
+    if [ -f "$TV_BASE/$series/Season $season/poster.jpg" ]; then
+        echo "$TV_BASE/$series/Season $season/poster.jpg"
+        return
+    fi
+
+    if [ -f "$TV_BASE/$series/poster.png" ]; then
+        echo "$TV_BASE/$series/poster.png"
+        return
+    fi
+    if [ -f "$TV_BASE/$series/poster.jpg" ]; then
+        echo "$TV_BASE/$series/poster.jpg"
+        return
+    fi
+
+    if [ -f "$TV_BASE/posters/$series.png" ]; then
+        echo "$TV_BASE/posters/$series.png"
+        return
+    fi
+    if [ -f "$TV_BASE/posters/$series.jpg" ]; then
+        echo "$TV_BASE/posters/$series.jpg"
+        return
+    fi
+}
+
 function show_configuration_help {
     sed -e 's/^    //' <<EOF
     The configurable settings of media-tools are:
 
         auto_add_dir   where the iTunes "Automatically Add to iTunes" is
                        (if set, add-cd will move converted audio to it)
+        cache_dir      where cached downloaded content is kept
         cd_rip_dir     where the output of rip-cd is kept
         convert_dir    where video conversion temp files are kept
         ignore_itunes  set to stop add-video adding the file to iTunes
@@ -303,6 +372,7 @@ function run_command {
 
 # default configuration
 AUTO_ADD_DIR=
+CACHE_DIR="${HOME}/Library/Caches/media-tools"
 CD_RIP_DIR="${HOME}/Music/rips"
 CONVERT_DIR=/tmp
 IGNORE_ITUNES=
@@ -321,6 +391,8 @@ cddb_hello=$(
 if [ -n "$MEDIA_CONFIG" ]; then
     auto_add_dir="$( config_key "$MEDIA_CONFIG" auto_add_dir )"
     [ -n "$auto_add_dir" ] && AUTO_ADD_DIR="${auto_add_dir}"
+    cache_dir="$( config_key "$MEDIA_CONFIG" cache_dir )"
+    [ -n "$cache_dir" ] && CACHE_DIR="${cache_dir}"
     cd_rip_dir="$( config_key "$MEDIA_CONFIG" cd_rip_dir )"
     [ -n "$cd_rip_dir" ] && CD_RIP_DIR="${cd_rip_dir}"
     convert="$( config_key "$MEDIA_CONFIG" convert_dir )"
@@ -337,6 +409,7 @@ fi
 
 # override with env, which takes precedence over file
 AUTO_ADD_DIR="${MEDIA_AUTO_ADD_DIR:=$AUTO_ADD_DIR}"
+CACHE_DIR="${MEDIA_CACHE_DIR:=$CACHE_DIR}"
 CD_RIP_DIR="${MEDIA_CD_RIP_DIR:=$CD_RIP_DIR}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"

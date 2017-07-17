@@ -46,13 +46,9 @@ function make_directory {
 
     mkdir -p "$dir"
 
-    # FIXME poster.png?
-    if [ -f "$TV_BASE/$show/Season $season/poster.jpg" ]; then
-      cp "$TV_BASE/$show/Season $season/poster.jpg" "$dir/poster.jpg"
-    elif [ -f "$TV_BASE/$show/poster.jpg" ]; then
-      cp "$TV_BASE/$show/poster.jpg" "$dir/poster.jpg"
-    elif [ -f "$TV_BASE/posters/$show.jpg" ]; then
-      cp "$TV_BASE/posters/$show.jpg" "$dir/poster.jpg"
+    local -r poster=$( get_tv_series_poster "$show" "$season" )
+    if [ -n "$poster" ]; then
+        cp "$poster" "$dir/poster.${poster##*.}"
     fi
 }
 

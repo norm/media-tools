@@ -1,0 +1,163 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+
+is_sub "$*" false
+summary_line "$*" 'download the videos in a YouTube playlist'
+help_text "$*" <<'EOF'
+    Usage: media get-youtube-playlist [<options>] <id>
+
+    Download all of the videos in the YouTube playlist <id>, and create
+    processing directories for them, using the title of the playlist as
+    the name of the TV series.
+
+    Options:
+        -a, --add
+            once downloaded, add the videos to iTunes (using the
+            `add-video` command)
+        -r, --reversed
+            indicates the playlist should be processed in reverse order
+            (where the most recently added video is the first in the 
+            playlist, not the last)
+        -s <season>, --season <season>
+            use <season> as the season number (rather than using the
+            year the video was uploaded to YouTube)
+        -t <name>, --title <name>
+            use <name> instead of the title of the playlist
+            as the series name
+EOF
+
+
+function get_season_count {
+    local -r season="$1"
+
+    [ -f "$playlist_cache_dir/season_$season.count" ] \
+        && cat "$playlist_cache_dir/season_$season.count" \
+        || echo 1
+}
+
+function increment_season_count {
+    local -r season="$1"
+    local count
+
+    count=$( get_season_count "$season" )
+    ((count++))
+    echo "$count" > "$playlist_cache_dir/season_$season.count"
+}
+
+function sanitised_title {
+    local -r info_file="$1"
+
+    filesystem_sanitised_string "$(jq -r .title "$info_file")"
+}
+
+
+reversed=
+playlist_season=
+playlist_title=
+add_videos=0
+declare -a to_add
+
+while [ "${1:0:1}" = '-' ]; do
+    case "$1" in
+        -a|--add)       add_videos=1; shift;;
+        -r|--reversed)  reversed='--playlist-reverse'; shift;;
+        -s|--season)    playlist_season="$2"; shift 2;;
+        -t|--title)     playlist_title="$2"; shift 2;;
+    esac
+done
+
+playlist_id="$1"
+playlist_cache_dir="${CACHE_DIR}/${playlist_id}"
+playlist_output_dir="${CONVERT_DIR}/${playlist_id}"
+playlist_data="${playlist_cache_dir}/playlist.json"
+mkdir -p "$playlist_cache_dir"
+
+media_status_line "    getting playlist ${playlist_title:-$playlist_id}"
+
+youtube-dl \
+    $reversed \
+    --flat-playlist \
+    --dump-single-json \
+    -- \
+    "$playlist_id" \
+        | jq . \
+            > "$playlist_data"
+
+[ -z "$playlist_title" ] \
+    && playlist_title=$( jq -r .title "$playlist_data" )
+
+video_entries=$(
+    jq -cr '.entries[] | { id:.id, title:.title }' "$playlist_data"
+)
+video_total=$( echo "$video_entries" | wc -l | tr -d ' ' )
+video_count=1
+
+while IFS= read -r entry; do
+    video_id=$( echo "$entry" | jq -r .id )
+    video_title=$( echo "$entry" | jq -r .title )
+    cache_file="${playlist_cache_dir}/${video_id}.info.json"
+
+    media_status_line \
+        "    fetching $video_count/$video_total" \
+        "$video_id $video_title"
+    ((video_count++))
+
+    [ -f "$cache_file" ] \
+        && continue
+
+    # temporarily disable errexit in order to capture exit code
+    set +e
+    media-get-youtube-video \
+        "$video_id" \
+        "$playlist_id"
+
+    exit_code=$?
+    set -e
+
+    # user interruption (^C)
+    [ $exit_code = 2 ] \
+        && exit 2
+
+    destination="${playlist_output_dir}/${video_id}"
+    upload_date=$(
+        jq -r .upload_date "${destination}/${video_id}.info.json"
+    )
+    season="${playlist_season:-$( echo "$upload_date" | cut -c1-4 )}"
+    episode=$( printf '%02d' "$(get_season_count "$season")" )
+    title=$( sanitised_title "${destination}/${video_id}.info.json" )
+
+    # create the metadata file
+    sed -e 's/^                //' > "${destination}/metadata.conf" <<EOF
+        series = ${playlist_title}
+        season = ${season}
+        episode = ${episode}
+        title = ${title}
+EOF
+
+    # check for a poster image to override the YouTube image
+    poster=$( get_tv_series_poster "$playlist_title" "$season" )
+    if [ -n "$poster" ]; then
+        cp "$poster" "$destination/poster.${poster##*.}"
+    fi
+
+    increment_season_count "$season"
+
+    # cache the video information 
+    mv "${destination}/${video_id}.info.json" "$cache_file"
+
+    media_success "  + ${season}x${episode} $title"
+    echo "    $destination"
+    echo ''
+
+    to_add+=("$destination")
+done < <( echo "$video_entries" )
+
+media_echo ''
+
+if [ $add_videos = 1 ]; then
+    media-add-video "${to_add[@]}"
+fi

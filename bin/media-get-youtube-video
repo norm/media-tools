@@ -1,0 +1,130 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+
+is_sub "$*" true
+summary_line "$*" 'download a YouTube video'
+help_text "$*" <<'EOF'
+    Usage: media get-youtube-video <video_id> [<playlist_id>]
+
+    Download the YouTube video with the named ID (optionally
+    as part of a playlist).
+
+    Whilst this can be used manually, it is normally invoked
+    automatically by `get-youtube-playlist`.
+EOF
+
+
+STDOUT=$( mktemp )
+STDERR=$( mktemp )
+function cleanup { rm -f "$STDOUT" "$STDERR"; }
+trap cleanup EXIT
+
+retry_count=0
+retry_interval=30
+output_dir=""
+
+
+function no_video {
+    rmdir "$output_dir"
+    media_error "$*"
+}
+
+function download_youtube_video {
+    local -r video_id="$1"
+    local -r playlist_id="$2"
+
+    local exit_code
+    local retry
+    local sleep_for
+    local upload_date
+
+    output_dir="${CONVERT_DIR}/${playlist_id}/${video_id}"
+    mkdir -p "$output_dir"
+
+    # temporarily disable errexit in order to capture youtube-dl exit code
+    set +e
+
+    youtube-dl \
+        -o "${output_dir}/%(id)s.%(ext)s" \
+        --write-thumbnail \
+        --write-info-json \
+        -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' \
+        -- \
+        "$video_id" \
+            >"$STDOUT" \
+            2>"$STDERR"
+
+    exit_code=$?
+    set -e
+
+    if [ $exit_code != 0 ]; then
+        if grep -q 'video does not exist' "$STDERR"; then
+            no_video "$video_id deleted"
+        elif grep -q 'video is no longer available' "$STDERR"; then
+            no_video "$video_id no longer available"
+        elif grep -q 'video is private' "$STDERR"; then
+            no_video "$video_id set to private"
+        elif grep -q 'blocked it on copyright grounds' "$STDERR"; then
+            no_video "$video_id blocked because of copyright"
+        elif grep -q 'blocked it in your country' "$STDERR"; then
+            no_video "$video_id blocked in this country because of copyright"
+        elif grep -q 'Please sign in to view' "$STDERR"; then
+            no_video "$video_id not available to anonymous users"
+        elif grep -q 'account.*has been terminated' "$STDERR"; then
+            no_video "$video_id not available because of account termination"
+        elif grep -q 'uploader has not made.*available' "$STDERR"; then
+            no_video "$video_id has not been made available by uploader"
+        elif grep -q 'removed.*spam' "$STDERR"; then
+            no_video "$video_id removed for being spam, deceptive or a scam"
+        elif grep -q 'content too short' "$STDERR"; then
+            retry="$video_id didn't fully download"
+        elif grep -q 'Operation timed out' "$STDERR"; then
+            retry="$video_id timed out"
+        elif grep -q 'Traceback (most' "$STDERR"; then
+            retry="python error in youtube-dl"
+        elif grep -q 'ERROR: Interrupted by user' "$STDERR"; then
+            exit 2
+        else
+            media_warning "Unknown error:"
+            echo '-- stdout --'
+            cat "$STDOUT"
+            echo '-- stderr --'
+            cat "$STDERR"
+            exit 1
+        fi
+    fi
+
+    # sometimes youtube-dl fails to fetch metadata
+    upload_date=$(
+        jq -r .upload_date "${output_dir}/${video_id}.info.json"
+    )
+    if [ "$upload_date" = 'null' ]; then
+        retry="$video_id contained no metadata"
+    fi
+
+    if [ -n "$retry" ]; then
+        ((retry_count++))
+        ((sleep_for = retry_interval * retry_count))
+
+        media_warning "$retry -- retrying in $sleep_for seconds"
+        sleep $sleep_for
+
+        download_youtube_video \
+            "$video_id" \
+            "$playlist_id"
+
+        exit
+    fi
+
+    # use YouTube poster image
+    # FIXME:
+    #   series artwork takes precedence; grab series artwork
+    #   from make-episode-dir, add to media, reuse here
+    mv "${output_dir}/${video_id}.jpg" "${output_dir}/poster.jpg"
+}
+
+download_youtube_video "$1" "$2"

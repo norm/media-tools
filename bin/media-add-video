@@ -35,16 +35,15 @@ function clean_up_converted {
 
     if [ -n "$TRASH_DIR" ]; then
         mkdir -p "$TRASH_DIR"
-        mv "$video" "$TRASH_DIR"
+
+        # clean out useless files
         rm -f \
-            "$dir/poster.jpg" "$dir/"poster-resized-*.jpg \
-            "$dir/poster.png" "$dir/"poster-resized-*.png \
+            "$dir"/poster-resized-*.jpg \
+            "$dir"/poster-resized-*.png \
             "$dir/.DS_Store"
 
-        # don't exit (because of `set -e`) if we haven't cleaned all the
-        # contents out (that's not an error worth stopping for)
-        rmdir "$dir" \
-            || true
+        # preserve everything else
+        mv "$dir" "$TRASH_DIR"
     fi
 }
 

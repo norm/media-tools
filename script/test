@@ -78,6 +78,9 @@ function download_posters {
     [ ! -f tests/source/movie.jpg ] \
         && curl -o tests/source/movie.jpg \
             http://is2.mzstatic.com/image/thumb/Video/v4/f6/72/6e/f6726e35-72e3-9cab-d435-3bec128c5ed4/source/600x600bb.jpg
+    [ ! -f tests/source/poster.png ] \
+        && curl -o tests/source/poster.png \
+            https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png
 }
 
 function setup_conversion_directory {
