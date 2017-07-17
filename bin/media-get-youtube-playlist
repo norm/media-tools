@@ -138,6 +138,12 @@ while IFS= read -r entry; do
         title = ${title}
 EOF
 
+    # check for a poster image to override the YouTube image
+    poster=$( get_tv_series_poster "$playlist_title" "$season" )
+    if [ -n "$poster" ]; then
+        cp "$poster" "$destination/poster.${poster##*.}"
+    fi
+
     increment_season_count "$season"
 
     # cache the video information 

@@ -149,7 +149,7 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
     rm -rf "$MEDIA_CACHE_DIR" "$MEDIA_CONVERT_DIR"
 }
 
-@test "downloads with a custom title" {
+@test "downloads with a custom title and poster images" {
     declare -a VIDEOS=(
         ppqiWVaO3rg
         EyI-5e1IrEo
@@ -158,12 +158,19 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
 
     export MEDIA_CACHE_DIR=$( mktemp -d )
     export MEDIA_CONVERT_DIR=$( mktemp -d )
+    export MEDIA_TV_BASE=$( mktemp -d )
 
     dir_is_empty "$MEDIA_CACHE_DIR"
     dir_is_empty "$MEDIA_CONVERT_DIR"
+    dir_is_empty "$MEDIA_TV_BASE"
 
     local -r cache_dir="$MEDIA_CACHE_DIR/$PLAYLIST"
     local -r convert_dir="$MEDIA_CONVERT_DIR/$PLAYLIST"
+
+    mkdir -p "$MEDIA_TV_BASE/Testing Playlist/Season 1"
+    cp tests/source/tv.jpg "$MEDIA_TV_BASE/Testing Playlist/Season 1/poster.jpg"
+
+    echo MEDIA_TV_BASE=$MEDIA_TV_BASE
 
     media-get-youtube-playlist \
         --title 'Testing Playlist' \
@@ -182,6 +189,7 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
         [ -f "$convert_dir/$video/$video.mp4" ]
         [ -f "$convert_dir/$video/metadata.conf" ]
         [ -f "$convert_dir/$video/poster.jpg" ]
+        diff "$convert_dir/$video/poster.jpg" tests/source/tv.jpg
 
         grep -q 'series = Testing Playlist' \
             "$convert_dir/$video/metadata.conf"
@@ -197,7 +205,7 @@ PLAYLIST=PL4zR2yLTCZ8chNFr0T_5EYzbCuNwaSRgO
     grep -q 'season = 1' "$convert_dir/BE7gAEsI0XY/metadata.conf"
     grep -q 'episode = 03' "$convert_dir/BE7gAEsI0XY/metadata.conf"
 
-    rm -rf "$MEDIA_CACHE_DIR" "$MEDIA_CONVERT_DIR"
+    rm -rf "$MEDIA_CACHE_DIR" "$MEDIA_CONVERT_DIR" "$MEDIA_TV_BASE"
 }
 
 @test "downloads nothing when cached files exist" {

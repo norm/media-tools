@@ -118,6 +118,39 @@ function show_configuration {
     echo "video_lang    = $VIDEO_LANG"
 }
 
+function get_tv_series_poster {
+    # find the most relevant poster image (prefers PNG over JPEG)
+    local -r series="$1"
+    local -r season="$2"
+
+    if [ -f "$TV_BASE/$series/Season $season/poster.png" ]; then
+        echo "$TV_BASE/$series/Season $season/poster.png"
+        return
+    fi
+    if [ -f "$TV_BASE/$series/Season $season/poster.jpg" ]; then
+        echo "$TV_BASE/$series/Season $season/poster.jpg"
+        return
+    fi
+
+    if [ -f "$TV_BASE/$series/poster.png" ]; then
+        echo "$TV_BASE/$series/poster.png"
+        return
+    fi
+    if [ -f "$TV_BASE/$series/poster.jpg" ]; then
+        echo "$TV_BASE/$series/poster.jpg"
+        return
+    fi
+
+    if [ -f "$TV_BASE/posters/$series.png" ]; then
+        echo "$TV_BASE/posters/$series.png"
+        return
+    fi
+    if [ -f "$TV_BASE/posters/$series.jpg" ]; then
+        echo "$TV_BASE/posters/$series.jpg"
+        return
+    fi
+}
+
 function show_configuration_help {
     sed -e 's/^    //' <<EOF
     The configurable settings of media-tools are:
