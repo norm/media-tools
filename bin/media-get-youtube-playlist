@@ -135,7 +135,7 @@ while IFS= read -r entry; do
     title=$( sanitised_title "${destination}/${video_id}.info.json" )
 
     # create the metadata file
-    sed -e 's/^                //' > "${destination}/metadata.conf" <<EOF
+    sed -e 's/^        //' > "${destination}/metadata.conf" <<EOF
         series = ${playlist_title}
         season = ${season}
         episode = ${episode}

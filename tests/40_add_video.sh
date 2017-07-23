@@ -193,5 +193,5 @@ source tests/lib.sh
     [ "$( media_lookup_atom "$installed" stik )" = 'TV Show' ]
     [ "$( media_lookup_atom "$installed" covr )" = '1 piece of artwork' ]
 
-    # rm -rf $MEDIA_TV_BASE
+    rm -rf $MEDIA_TV_BASE
 }
