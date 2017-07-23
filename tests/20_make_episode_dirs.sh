@@ -3,6 +3,11 @@
 source bin/media-make-episode-dir
 source tests/lib.sh
 
+# episodate.com used to return this:
+# EPISODE_TITLE='Everybody Lies'
+# but now returns this:
+EPISODE_TITLE='Pilot'
+
 
 @test "makes episode directory with global poster image" {
     export MEDIA_TV_BASE=$( mktemp -d )
@@ -18,7 +23,7 @@ source tests/lib.sh
     pushd "$process_dir"
     media-make-episode-dir House 1 1
 
-    local -r episode_dir="House - 1x01 - Everybody Lies"
+    local -r episode_dir="House - 1x01 - $EPISODE_TITLE"
     [ -d "$episode_dir" ]
     [ -f "$episode_dir/poster.jpg" ]
     diff "$episode_dir/poster.jpg" "$MEDIA_TV_BASE/posters/House.jpg"
@@ -43,7 +48,7 @@ source tests/lib.sh
     pushd $process_dir
     media-make-episode-dir House 1 1
 
-    local -r episode_dir="House - 1x01 - Everybody Lies"
+    local -r episode_dir="House - 1x01 - $EPISODE_TITLE"
     [ -d "$episode_dir" ]
     [ -f "$episode_dir/poster.jpg" ]
     diff "$episode_dir/poster.jpg" "$MEDIA_TV_BASE/House/poster.jpg"
@@ -70,7 +75,7 @@ source tests/lib.sh
     pushd $process_dir
     media-make-episode-dir House 1 1
 
-    local -r episode_dir="House - 1x01 - Everybody Lies"
+    local -r episode_dir="House - 1x01 - $EPISODE_TITLE"
     [ -d "$episode_dir" ]
     [ -f "$episode_dir/poster.jpg" ]
     diff "$episode_dir/poster.jpg" "$MEDIA_TV_BASE/House/Season 1/poster.jpg"
@@ -88,7 +93,7 @@ source tests/lib.sh
     pushd $process_dir
     media-make-episode-dir House 1 1 'Everybody Tells the Truth'
 
-    [ ! -d "House - 1x01 - Everybody Lies" ]
+    [ ! -d "House - 1x01 - $EPISODE_TITLE" ]
     [ -d "House - 1x01 - Everybody Tells the Truth" ]
 
     popd
