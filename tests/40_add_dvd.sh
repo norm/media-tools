@@ -112,5 +112,15 @@ POSTER="$DVD_IMAGE/poster.jpg"
     [ -f "$install_dir/106 Season 2 DVD Trailer.m4v" ]
     [ -f "$install_dir/107 Season 3 DVD Trailer.m4v" ]
 
+    # test metadata setting of maxWidth/maxHeight
+    local -r size=$(
+        HandBrakeCLI -t0 -i "$install_dir/101 Hush Featurette.m4v" \
+            2>&1 \
+            | extract_track_metadata 1 \
+            | awk '/size/ { print $3 }'
+    )
+    echo "** $size should be 300x240"
+    [ "$size" = "300x240," ]
+
     rm -rf $MEDIA_TV_BASE
 }

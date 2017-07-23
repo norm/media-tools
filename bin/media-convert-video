@@ -160,19 +160,22 @@ function get_setting_from_metadata {
 }
 
 function testing_handbrake_args {
+    local -r input="$1"
+    local -r track="$2"
+
+    local -r maxWidth=$(get_setting_from_metadata "$input" "$track" "maxWidth")
+    local -r maxHeight=$(get_setting_from_metadata "$input" "$track" "maxHeight")
+
+    # highest output is 1080p
+    echo '--maxWidth' "${maxWidth:-1920}"
+    echo '--maxHeight' "${maxHeight:-1080}"
+
     # low quality == faster
     echo '--quality' '55'
     echo '--x264-preset' 'ultrafast'
     echo '--h264-profile' 'baseline'
-}
 
-function small_video_dimensions {
-    # small output == faster
-    echo '--maxWidth' '320'
-    echo '--maxHeight' '240'
-}
-
-function shorter_encode {
+    # only encode the first minute of content for faster testing
     echo '--chapters' '1'
     echo '--start-at' 'duration:0'
     echo '--stop-at' 'duration:60'
@@ -230,17 +233,10 @@ function get_handbrake_args {
     echo '--markers'
 
     if [ -n "$MEDIA_TESTING" ]; then
-        testing_handbrake_args
-        if [[ "$MEDIA_TESTING" =~ 'short' ]]; then
-            shorter_encode
-        fi
-        if [[ "$MEDIA_TESTING" =~ 'small' ]]; then
-            small_video_dimensions
-        fi
+        testing_handbrake_args "$input" "$track"
     else
         normal_handbrake_args "$input" "$track"
     fi
-
 }
 
 function media_convert_video {
