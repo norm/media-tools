@@ -144,29 +144,53 @@ function get_audio_arguments {
     echo '--aencoder' "$(comma_separated "${arg_encoder[@]}")"
 }
 
+function get_setting_from_metadata {
+    local -r input="$1"
+    local -r track="$2"
+    local -r setting="$3"
+
+    local metadata="$input/metadata.conf"
+    if [ -f "$input" ]; then
+        metadata="$( dirname "$input" )/metadata.conf"
+    fi
+
+    if [ -f "$metadata" ]; then
+        config_key "$metadata" "$setting" "$track"
+    fi
+}
+
 function testing_handbrake_args {
+    local -r input="$1"
+    local -r track="$2"
+
+    local -r maxWidth=$(get_setting_from_metadata "$input" "$track" "maxWidth")
+    local -r maxHeight=$(get_setting_from_metadata "$input" "$track" "maxHeight")
+
+    # highest output is 1080p
+    echo '--maxWidth' "${maxWidth:-1920}"
+    echo '--maxHeight' "${maxHeight:-1080}"
+
     # low quality == faster
     echo '--quality' '55'
     echo '--x264-preset' 'ultrafast'
     echo '--h264-profile' 'baseline'
-}
 
-function small_video_dimensions {
-    # small output == faster
-    echo '--maxWidth' '320'
-    echo '--maxHeight' '240'
-}
-
-function shorter_encode {
+    # only encode the first minute of content for faster testing
     echo '--chapters' '1'
     echo '--start-at' 'duration:0'
     echo '--stop-at' 'duration:60'
 }
 
 function normal_handbrake_args {
+    local -r input="$1"
+    local -r track="$2"
+
+    local -r maxWidth=$(get_setting_from_metadata "$input" "$track" "maxWidth")
+    local -r maxHeight=$(get_setting_from_metadata "$input" "$track" "maxHeight")
+
     # highest output is 1080p
-    echo '--maxWidth' '1920'
-    echo '--maxHeight' '1080'
+    echo '--maxWidth' "${maxWidth:-1920}"
+    echo '--maxHeight' "${maxHeight:-1080}"
 
     # prefer slower transforms for higher quality output
     echo '--quality' '22'
@@ -176,6 +200,12 @@ function normal_handbrake_args {
 }
 
 function get_handbrake_args {
+    local -r input="$1"
+    local -r track="$2"
+
+    local -r crop=$(get_setting_from_metadata "$input" "$track" "crop")
+    local -r decomb=$(get_setting_from_metadata "$input" "$track" "decomb")
+
     get_audio_arguments "$input" "$track"
 
     # loose anamorphic pictures
@@ -183,10 +213,12 @@ function get_handbrake_args {
     echo '--modulus' '2'
 
     # auto crop detection is sometimes wrong, so never crop
-    echo '--crop' '0:0:0:0'
+    echo '--crop' "${crop:-0:0:0:0}"
 
-    # deinterlace if needed
-    echo '--decomb' 'fast'
+    if [ "$decomb" != 'none' ]; then
+        # deinterlace if needed
+        echo '--decomb' "${decomb:-fast}"
+    fi
 
     # use source frame rate, except clip at 30
     echo '--rate' '30'
@@ -201,17 +233,10 @@ function get_handbrake_args {
     echo '--markers'
 
     if [ -n "$MEDIA_TESTING" ]; then
-        testing_handbrake_args
-        if [[ "$MEDIA_TESTING" =~ 'short' ]]; then
-            shorter_encode
-        fi
-        if [[ "$MEDIA_TESTING" =~ 'small' ]]; then
-            small_video_dimensions
-        fi
+        testing_handbrake_args "$input" "$track"
     else
-        normal_handbrake_args
+        normal_handbrake_args "$input" "$track"
     fi
-
 }
 
 function media_convert_video {
