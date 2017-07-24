@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source "$(which media)"
+
+is_sub "$*" false
+summary_line "$*" 'get artwork from iTunes'
+help_text "$*" <<'EOF'
+    Usage: media lookup-itunes-artwork <type> <search> ...
+
+    Lookup the URL(s) of artwork on iTunes.
+
+    The supported types are:
+        tv -- cover art for a tv show/series (eg "tv House season 2")
+        cd -- covert art for a music album (eg "cd Deacon Blue Raintown")
+EOF
+
+BASE_URL='https://itunes.apple.com/search?country=gb'
+RESULTS=$( mktemp )
+
+
+media=
+entity=
+size=
+case "$1" in
+    tv)         media=tvShow; entity=tvSeason; size=600x600 ;;
+    cd|music)   media=music;  entity=album;    size=1024x1024 ;;
+esac
+
+[ -z "$media" ] \
+    && media_error "Unknown media type: '$1'"
+
+shift
+term="$( simple_encode "$*" )"
+
+url="$BASE_URL&media=$media&entity=$entity&term=$term"
+
+echo "Full results at: $url"
+echo ''
+
+curl -s "$BASE_URL&media=$media&entity=$entity&term=$term" \
+    | jq -c '
+            .results[] | {
+                collection: .collectionName,
+                url: .artworkUrl100
+            }
+        ' \
+    | sort -u \
+    | sed -e 's/100x100/1024x1024/' \
+    | jq .
+
+rm -f $RESULTS

@@ -14,6 +14,7 @@ MEDIA_SCRIPTS = media \
 	media-get-youtube-playlist \
 	media-install-video \
 	media-itunes-add \
+	media-lookup-itunes-artwork \
 	media-make-episode-dir \
 	media-rip-cd \
 	media-set-artwork \
