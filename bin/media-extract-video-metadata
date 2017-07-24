@@ -76,10 +76,14 @@ function extract_metadata_from_file {
     local -r dir="$1"
     local -r track="$2"
 
-    local -r series=$( config_key "$dir/metadata.conf" series "$track" )
-    local -r season=$( config_key "$dir/metadata.conf" season "$track" )
-    local -r episode=$( config_key "$dir/metadata.conf" episode "$track" )
-    local -r title=$( config_key "$dir/metadata.conf" title "$track" )
+    local series=$( config_key "$dir/metadata.conf" series "$track" )
+    local season=$( config_key "$dir/metadata.conf" season "$track" )
+    local episode=$( config_key "$dir/metadata.conf" episode "$track" )
+    local title=$( config_key "$dir/metadata.conf" title "$track" )
+
+    # preserve double quotes
+    series=$( echo "$series" | sed -e 's/"/\\"/g' )
+    title=$( echo "$title" | sed -e 's/"/\\"/g' )
 
     # FIXME
     # shellcheck disable=SC2166
