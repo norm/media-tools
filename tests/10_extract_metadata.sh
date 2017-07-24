@@ -105,13 +105,38 @@
     local -r source="$source_dir/House - 1x01 - Pilot"
 
     mkdir "$source"
-    cp tests/config/metadata.conf "$source/metadata.conf"
+    sed -e 's/^        //' > "$source/metadata.conf" <<EOF
+        series = House
+        season = 2
+        episode = 23
+        title = Who's Your Daddy?
+EOF
 
     eval metadata=( $( media-extract-video-metadata "$source" ) )
     [ "${metadata[0]}" == '--TVShowName=House' ]
     [ "${metadata[1]}" == '--TVSeasonNum=2' ]
     [ "${metadata[2]}" == '--TVEpisodeNum=23' ]
     [ "${metadata[3]}" == "--title=Who's Your Daddy?" ]
+    [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
+@test "extracts titles with double quotes from metadata files" {
+    local -r source_dir="$( mktemp -d )"
+    local -r source="$source_dir/House - 1x01 - Pilot"
+
+    mkdir "$source"
+    sed -e 's/^        //' > "$source/metadata.conf" <<EOF
+        series = YouTube Favourites
+        season = 2015
+        episode = 01
+        title = "I Really Like You" Without Music (Carly Rae Jepsen)
+EOF
+
+    eval metadata=( $( media-extract-video-metadata "$source" ) )
+    [ "${metadata[0]}" == '--TVShowName=YouTube Favourites' ]
+    [ "${metadata[1]}" == '--TVSeasonNum=2015' ]
+    [ "${metadata[2]}" == '--TVEpisodeNum=01' ]
+    [ "${metadata[3]}" == "--title=\"I Really Like You\" Without Music (Carly Rae Jepsen)" ]
     [ "${metadata[4]}" == '--stik=TV Show' ]
 }
 

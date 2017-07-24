@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.8
+MEDIA_VERSION=0.8.1
 
 
 function media_status_line {
