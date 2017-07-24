@@ -105,7 +105,12 @@
     local -r source="$source_dir/House - 1x01 - Pilot"
 
     mkdir "$source"
-    cp tests/config/metadata.conf "$source/metadata.conf"
+    sed -e 's/^        //' > "$source/metadata.conf" <<EOF
+        series = House
+        season = 2
+        episode = 23
+        title = Who's Your Daddy?
+EOF
 
     eval metadata=( $( media-extract-video-metadata "$source" ) )
     [ "${metadata[0]}" == '--TVShowName=House' ]
