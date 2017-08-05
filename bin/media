@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.8.3
+MEDIA_VERSION=0.9
 
 
 function media_status_line {
@@ -102,6 +102,35 @@ function filesystem_sanitised_string {
     echo "$@" \
         | sed -e 's/[\/:|]/ - /g' \
               -e 's/  */ /g'
+}
+
+function apply_title_case {
+    echo "$*" | perl -e '
+        my @lower_words = ( qw(
+            a  an  at  and  be  but  for  in  of  on  or  so  the  to  with
+            yet
+        ) );
+
+        while (<>) {
+            $first = 1;
+            $output = q();
+
+            foreach my $word ( split /\s+/ ) {
+                $upper = 1;
+
+                foreach my $check ( @lower_words ) {
+                    $upper = 0 if lc($word) eq $check;
+                }
+
+                if ( $first ) { $upper = 1; $first = 0; }
+                if ( $upper ) { $output .= ucfirst "$word "}
+                else          { $output .= lc "$word " }
+            }
+
+            chop $output;
+            print $output;
+        }
+    '
 }
 
 function show_configuration {

@@ -1,5 +1,6 @@
 brew 'atomicparsley'
 brew 'ffmpeg'
+brew 'flac'
 brew 'handbrake'
 brew 'jq'
 brew 'youtube-dl'
