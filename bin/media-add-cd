@@ -35,12 +35,16 @@ for rip in "$@"; do
         basename "$( find "$rip/wavs/" -type f | tail -1 )" .wav
     )
 
+    echo "** $(config_key "$rip/metadata.conf" album) by" \
+         "$(config_key "$rip/metadata.conf" artist)" \
+         "(${last_track} tracks)"
+
     for wav in "$rip/wavs/"*; do
         track=$( basename "$wav" .wav )
         dest="${rip}/${track}.m4a"
 
         echo \
-            "$track/$last_track" \
+            "   $track -" \
             "$( config_key "$rip/metadata.conf" title "$track" )"
 
         media-convert-wav "$wav" "$dest"
@@ -66,4 +70,5 @@ for rip in "$@"; do
         [ -n "$AUTO_ADD_DIR" ] \
             && mv "$dest" "$AUTO_ADD_DIR/${track}.m4a"
     done
+    echo ''
 done

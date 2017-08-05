@@ -21,8 +21,9 @@ file="$1"
 shift
 
 for artwork in "$@"; do
-    AtomicParsley           \
-        "$file"             \
-        --overWrite         \
-        --artwork "$artwork"
+    AtomicParsley               \
+        "$file"                 \
+        --overWrite             \
+        --artwork "$artwork"    \
+            >/dev/null
 done
