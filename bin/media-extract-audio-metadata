@@ -25,11 +25,13 @@ function extract_cd_metadata_from_file {
     local -r track="$2"
     local -r last_track="$3"
 
-    # FIXME --albumArtist='Various Artists'
     config_as_atoms "$metadata" "$track"
 
     [ -n "$last_track" ] \
         && echo "--tracknum=${track}/${last_track}"
+
+    echo "--albumArtist=\"$(config_key "$metadata" artist)\""
+    echo "--stik=Normal"
 }
 
 

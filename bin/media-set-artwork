@@ -21,8 +21,12 @@ file="$1"
 shift
 
 for artwork in "$@"; do
-    AtomicParsley           \
-        "$file"             \
-        --overWrite         \
-        --artwork "$artwork"
+    AtomicParsley               \
+        "$file"                 \
+        --overWrite             \
+        --artwork "$artwork"    \
+            >/dev/null
+
+    # tidy up any temp resize files
+    rm -f "${artwork%.*}-resized"*
 done
