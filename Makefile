@@ -27,6 +27,7 @@ COMPLETION_SCRIPTS = media
 all:
 
 install:
+	brew bundle
 	for script in $(MEDIA_SCRIPTS); do \
 		install bin/$$script /usr/local/bin; done
 	for script in $(COMPLETION_SCRIPTS); do \
