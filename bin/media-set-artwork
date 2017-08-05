@@ -26,4 +26,7 @@ for artwork in "$@"; do
         --overWrite             \
         --artwork "$artwork"    \
             >/dev/null
+
+    # tidy up any temp resize files
+    rm -f "${artwork%.*}-resized"*
 done
