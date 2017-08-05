@@ -30,6 +30,7 @@ function extract_cd_metadata_from_file {
 
     [ -n "$last_track" ] \
         && echo "--tracknum=${track}/${last_track}"
+    echo "--stik=Normal"
 }
 
 

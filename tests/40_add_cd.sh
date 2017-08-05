@@ -35,19 +35,23 @@ function teardown {
     [ -f "$track" ]
     [ "$( media_lookup_atom "$track" trkn )" = '1 of 4' ]
     [ "$( media_lookup_atom "$track" ©nam )" = 'Dignity' ]
+    [ "$( media_lookup_atom "$track" stik )" = 'Normal' ]
 
     track="$MEDIA_AUTO_ADD_DIR/02.m4a"
     [ -f "$track" ]
     [ "$( media_lookup_atom "$track" trkn )" = '2 of 4' ]
     [ "$( media_lookup_atom "$track" ©nam )" = 'Beautiful Stranger' ]
+    [ "$( media_lookup_atom "$track" stik )" = 'Normal' ]
 
     track="$MEDIA_AUTO_ADD_DIR/03.m4a"
     [ -f "$track" ]
     [ "$( media_lookup_atom "$track" trkn )" = '3 of 4' ]
     [ "$( media_lookup_atom "$track" ©nam )" = 'Waves of sorrow (Piano and vocal version)' ]
+    [ "$( media_lookup_atom "$track" stik )" = 'Normal' ]
 
     track="$MEDIA_AUTO_ADD_DIR/04.m4a"
     [ -f "$track" ]
     [ "$( media_lookup_atom "$track" trkn )" = '4 of 4' ]
     [ "$( media_lookup_atom "$track" ©nam )" = "Bethelehem's gate (Piano and vocal version)" ]
+    [ "$( media_lookup_atom "$track" stik )" = 'Normal' ]
 }
