@@ -55,34 +55,6 @@ function cddb_entry {
     esac
 }
 
-function apply_title_case {
-    echo "$*" | perl -e '
-        my @lower_words = ( qw(
-            a  at  and  be  but  in  of  on  or  the  to  with
-        ) );
-
-        while (<>) {
-            $first = 1;
-            $output = q();
-
-            foreach my $word ( split /\s+/ ) {
-                $upper = 1;
-
-                foreach my $check ( @lower_words ) {
-                    $upper = 0 if lc($word) eq $check;
-                }
-
-                if ( $first ) { $upper = 1; $first = 0; }
-                if ( $upper ) { $output .= ucfirst "$word "}
-                else          { $output .= lc "$word " }
-            }
-
-            chop $output;
-            print $output;
-        }
-    '
-}
-
 function create_cd_metadata {
     local -r genre=$( echo "$1" | cut -d' ' -f1 )
     local -r id=$( echo "$1" | cut -d' ' -f2 )

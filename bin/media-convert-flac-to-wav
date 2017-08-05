@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+
+# shellcheck source=/dev/null
+source $(which media)
+
+is_sub "$*" false
+summary_line "$*" 'convert a FLAC album to WAVs for processing by add-cd'
+help_text "$*" <<'EOF'
+    Usage: media convert-flac-to-wav <dir>
+
+    Given a directory containing FLAC audio files, convert them to WAVs and
+    create the metadata file for the album, ready for use by `add-cd`.
+
+    Assumes the files are named "Artist - Album - 01 Title.flac" (this is
+    directly influenced by Bandcamp's albums delivered in FLAC format).
+EOF
+
+
+directory="$1"
+
+mkdir -p "$directory/wavs"
+cd "$directory"
+
+IFS=
+declare -a flac_files=( *.flac )
+
+artist=$( echo "${flac_files[0]}" | awk -F' - ' '{ print $1 }' )
+album=$( echo "${flac_files[0]}" | awk -F' - ' '{ print $2 }' )
+
+sed -e 's/^    //'> metadata.conf <<EOF
+    album = $album
+    artist = $artist
+    compilation = false
+    disk = 1/1
+    genre = unknown
+    purchaseDate = 1970-01-01T12:00:00Z
+    year = 1970-01-01T12:00:00Z
+
+    # tracks can also over sleep-ride options, such as:
+    #   artist = <track artist>
+    #   genre  = <track genre>
+    #   year   = <track year>
+    #
+    # other options:
+    #   grouping = <grouping>
+    #   comment = [instrumental]
+EOF
+
+
+for file in "${flac_files[@]}"; do
+    track=$( echo "$file" | awk -F' - ' '{ print $3 }' | cut -c1-2 )
+    title=$( echo "$file" | awk -F' - ' '{ print $3 }' | cut -c4- )
+    title=$( apply_title_case $(basename "$title" .flac) )
+
+    echo "Converting $file"
+    flac \
+        --decode "$file" \
+        --force \
+        --output-name="wavs/$track.wav" \
+            >/dev/null 2>&1
+
+    echo '' >> metadata.conf
+    echo "[$track]" >> metadata.conf 
+    echo "title = $title" >> metadata.conf
+done
+
+echo ''
+echo 'Done. Edit the "metadata.conf" file, and then run:'
+echo ''
+echo "    media add-cd '${directory}'"
+echo ''
