@@ -52,7 +52,7 @@ EOF
 for file in "${flac_files[@]}"; do
     track=$( echo "$file" | awk -F' - ' '{ print $3 }' | cut -c1-2 )
     title=$( echo "$file" | awk -F' - ' '{ print $3 }' | cut -c4- )
-    title=$( apply_title_case $(basename "$title" .flac) )
+    title=$( apply_title_case "$(basename "$title" .flac)" )
 
     echo "Converting $file"
     flac \
@@ -61,6 +61,7 @@ for file in "${flac_files[@]}"; do
         --output-name="wavs/$track.wav" \
             >/dev/null 2>&1
 
+    # shellcheck disable=SC2129
     echo '' >> metadata.conf
     echo "[$track]" >> metadata.conf 
     echo "title = $title" >> metadata.conf

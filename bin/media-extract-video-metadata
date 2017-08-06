@@ -105,26 +105,28 @@ function extract_metadata_from_directory_name {
 ";
 }
 
+# shellcheck disable=SC2001
 function extract_metadata_from_file {
     local -r dir="$1"
     local -r track="$2"
+    local series movie season episode title
 
-    local series=$( config_key "$dir/metadata.conf" series "$track" )
-    local movie=$( config_key "$dir/metadata.conf" movie "$track" )
+    series="$( config_key "$dir/metadata.conf" series "$track" )"
+    movie="$( config_key "$dir/metadata.conf" movie "$track" )"
 
     if [ -n "$series" ]; then
-        local season=$( config_key "$dir/metadata.conf" season "$track" )
-        local episode=$( config_key "$dir/metadata.conf" episode "$track" )
-        local title=$( config_key "$dir/metadata.conf" title "$track" )
+        season=$( config_key "$dir/metadata.conf" season "$track" )
+        episode=$( config_key "$dir/metadata.conf" episode "$track" )
+        title=$( config_key "$dir/metadata.conf" title "$track" )
 
         # preserve double quotes
-        series=$( echo "$series" | sed -e 's/"/\\"/g' )
+        series=$( echo "$series" | sed -e 's/"/\\"/g' ) 
         title=$( echo "$title" | sed -e 's/"/\\"/g' )
 
         # FIXME
         # shellcheck disable=SC2166
         if [ -n "$series" -a -n "$season" -a -n "$episode" -a -n "$title" ]; then
-            echo "--TVShowName=\"$series\"" \
+            echo "--TVShowName=\"${series}\"" \
                  "--TVSeasonNum=$season" \
                  "--TVEpisodeNum=$episode" \
                  "--title=\"$title\"" \

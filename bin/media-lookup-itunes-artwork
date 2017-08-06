@@ -67,7 +67,7 @@ curl -s "${BASE_URL}country=$country&media=$media&entity=$entity&term=$term" \
         ' \
     | sort -u \
     | grep "id.*$id" \
-    | sed -e 's/100x100/1024x1024/' \
+    | sed -e "s/100x100/$size/" \
     | jq .
 
-rm -f $RESULTS
+rm -f "$RESULTS"
