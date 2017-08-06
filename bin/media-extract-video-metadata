@@ -38,6 +38,15 @@ function extract_metadata_from_directory_name {
             return qq(\"\$string\");
         }
 
+        my %ratings = (
+            'U' => 'uk-movie|U|100|',
+            'PG' => 'uk-movie|PG|200|',
+            '12' => 'uk-movie|12|300|',
+            '12A' => 'uk-movie|12A|325|',
+            '15' => 'uk-movie|15|350|',
+            '18' => 'uk-movie|18|400|',
+        );
+
         my \$extract = qq($escaped);
 
         # strip trailing slashes
@@ -48,13 +57,25 @@ function extract_metadata_from_directory_name {
 
         \$extract =~ m{
             ^
-            (?<series> .* )
-            \s+ - \s+
-            (?<season> \d+ )
-            x
-            (?<episode> \d+ (?: -\d+ )? )
-            \s+ - \s+
-            (?<title> .* )
+            (?:
+                # match a TV series episode
+                (?<series> .* )
+                \s+ - \s+
+                (?<season> \d+ )
+                x
+                (?<episode> \d+ (?: -\d+ )? )
+                \s+ - \s+
+                (?<title> .* )
+            )
+            | 
+            (?:
+                # match a movie
+                (?<movie> .* )
+                \s+ - \s+
+                (?<year> \d+ )
+                \s+
+                (?<rating> .{1,3} )
+            )
             $
         }x;
 
@@ -65,6 +86,18 @@ function extract_metadata_from_directory_name {
                 '--TVEpisodeNum=' . $+{'episode'},
                 '--title=' . quote_string($+{'title'}),
                 '--stik=' . quote_string('TV Show'),
+        }
+        elsif (defined $+{'movie'}) {
+            my \$rating = \$ratings{$+{'rating'}};
+
+            say join ' ',
+                '--title=' . quote_string($+{'movie'}),
+                '--album=' . quote_string($+{'movie'}),
+                '--year=' . quote_string($+{'year'}),
+                '--rDNSatom=' . quote_string(\$rating),
+                    'name=iTunEXTC',
+                    'domain=com.apple.iTunes',
+                '--stik=Movie',
         }
         else {
             say qq(Error: unknown format '\$extract');
@@ -77,22 +110,53 @@ function extract_metadata_from_file {
     local -r track="$2"
 
     local series=$( config_key "$dir/metadata.conf" series "$track" )
-    local season=$( config_key "$dir/metadata.conf" season "$track" )
-    local episode=$( config_key "$dir/metadata.conf" episode "$track" )
-    local title=$( config_key "$dir/metadata.conf" title "$track" )
+    local movie=$( config_key "$dir/metadata.conf" movie "$track" )
 
-    # preserve double quotes
-    series=$( echo "$series" | sed -e 's/"/\\"/g' )
-    title=$( echo "$title" | sed -e 's/"/\\"/g' )
+    if [ -n "$series" ]; then
+        local season=$( config_key "$dir/metadata.conf" season "$track" )
+        local episode=$( config_key "$dir/metadata.conf" episode "$track" )
+        local title=$( config_key "$dir/metadata.conf" title "$track" )
 
-    # FIXME
-    # shellcheck disable=SC2166
-    if [ -n "$series" -a -n "$season" -a -n "$episode" -a -n "$title" ]; then
-        echo "--TVShowName=\"$series\"" \
-             "--TVSeasonNum=$season" \
-             "--TVEpisodeNum=$episode" \
-             "--title=\"$title\"" \
-             "--stik=\"TV Show\""
+        # preserve double quotes
+        series=$( echo "$series" | sed -e 's/"/\\"/g' )
+        title=$( echo "$title" | sed -e 's/"/\\"/g' )
+
+        # FIXME
+        # shellcheck disable=SC2166
+        if [ -n "$series" -a -n "$season" -a -n "$episode" -a -n "$title" ]; then
+            echo "--TVShowName=\"$series\"" \
+                 "--TVSeasonNum=$season" \
+                 "--TVEpisodeNum=$episode" \
+                 "--title=\"$title\"" \
+                 '--stik="TV Show"'
+        else
+            echo "Error: missing TV series metadata in '$1/metadata.conf'"
+            exit 1
+        fi
+    elif [ -n "$movie" ]; then
+        local -r year="$( config_key "$dir/metadata.conf" year "$track" )"
+        local -r rating="$(config_key "$dir/metadata.conf" rating "$track" )"
+        local -r itunes="$( rating_to_itunes "$rating" )"
+        local -r feature="$( config_key "$dir/metadata.conf" feature "$track" )"
+        local -r extra="$( config_key "$dir/metadata.conf" extra "$track" )"
+
+        if [ -n "$feature" ]; then
+            echo "--title=\"$movie\"" \
+                 "--album=\"$movie\"" \
+                 "--year=$year" \
+                 "--rDNSatom=\"$itunes\"" \
+                    'name=iTunEXTC' \
+                    'domain=com.apple.iTunes' \
+                 '--stik=Movie'
+        elif [ -n "$extra" ]; then
+            echo "--title=\"$extra\"" \
+                 "--album=\"$movie\"" \
+                 "--year=$year" \
+                 "--rDNSatom=\"$itunes\"" \
+                    'name=iTunEXTC' \
+                    'domain=com.apple.iTunes' \
+                 '--stik=Movie'
+        fi
     else
         echo "Error: unknown metadata in '$1/metadata.conf'"
         exit 1

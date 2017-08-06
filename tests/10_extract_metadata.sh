@@ -71,6 +71,21 @@
     [ "${metadata[4]}" == '--stik=TV Show' ]
 }
 
+@test "extracts movie titles" {
+    local -a metadata
+
+    media-extract-video-metadata "The Thin Man - 1934 U"
+
+    eval metadata=( $( media-extract-video-metadata "The Thin Man - 1934 U") )
+    [ "${metadata[0]}" == '--title=The Thin Man' ]
+    [ "${metadata[1]}" == '--album=The Thin Man' ]
+    [ "${metadata[2]}" == '--year=1934' ]
+    [ "${metadata[3]}" == '--rDNSatom=uk-movie|U|100|' ]
+    [ "${metadata[4]}" == 'name=iTunEXTC' ]
+    [ "${metadata[5]}" == 'domain=com.apple.iTunes' ]
+    [ "${metadata[6]}" == '--stik=Movie' ]
+}
+
 @test "extracts when perl array symbols exist" {
     local -a metadata
     eval metadata=( $( media-extract-video-metadata "Show - 1x01 - @Email" ) )
@@ -156,6 +171,42 @@ EOF
     [ "${metadata[2]}" == '--TVEpisodeNum=9' ]
     [ "${metadata[3]}" == "--title=Something Blue" ]
     [ "${metadata[4]}" == '--stik=TV Show' ]
+}
+
+@test "extracts movies using a config file" {
+    local -r source="$( mktemp -d )"
+
+    sed -e 's/^        //' > "$source/metadata.conf" <<EOF
+        movie = The Thin Man
+        year = 1934
+        rating = U
+
+        [1]
+        feature = 1
+
+        [2]
+        extra = Trailer
+EOF
+
+    media-extract-video-metadata "$source" 1
+    eval metadata=( $( media-extract-video-metadata "$source" 1 ) )
+    [ "${metadata[0]}" == '--title=The Thin Man' ]
+    [ "${metadata[1]}" == '--album=The Thin Man' ]
+    [ "${metadata[2]}" == '--year=1934' ]
+    [ "${metadata[3]}" == '--rDNSatom=uk-movie|U|100|' ]
+    [ "${metadata[4]}" == 'name=iTunEXTC' ]
+    [ "${metadata[5]}" == 'domain=com.apple.iTunes' ]
+    [ "${metadata[6]}" == '--stik=Movie' ]
+
+    media-extract-video-metadata "$source" 2
+    eval metadata=( $( media-extract-video-metadata "$source" 2 ) )
+    [ "${metadata[0]}" == '--title=Trailer' ]
+    [ "${metadata[1]}" == '--album=The Thin Man' ]
+    [ "${metadata[2]}" == '--year=1934' ]
+    [ "${metadata[3]}" == '--rDNSatom=uk-movie|U|100|' ]
+    [ "${metadata[4]}" == 'name=iTunEXTC' ]
+    [ "${metadata[5]}" == 'domain=com.apple.iTunes' ]
+    [ "${metadata[6]}" == '--stik=Movie' ]
 }
 
 @test "otherwise does nothing" {

@@ -9,6 +9,11 @@ UNEDITED_CONF="tests/config/buffy_s4d3_unedited.conf"
 EDITED_CONF="tests/config/buffy_s4d3.conf"
 POSTER="$DVD_IMAGE/poster.jpg"
 
+DVD_MOVIE_IMAGE='tests/source/THE_THIN_MAN'
+EDITED_MOVIE_CONF="tests/config/the_thin_man.conf"
+MOVIE_CONF="$DVD_MOVIE_IMAGE/metadata.conf"
+MOVIE_POSTER="$DVD_MOVIE_IMAGE/poster.jpg"
+
 
 @test "empty DVD image creates a metadata.conf" {
     needs_source "$DVD_IMAGE"
@@ -123,4 +128,51 @@ POSTER="$DVD_IMAGE/poster.jpg"
     [ "$size" = "300x240," ]
 
     rm -rf $MEDIA_TV_BASE
+}
+
+@test "adds movie titles and extras to movies dir not TV" {
+    needs_source "$DVD_MOVIE_IMAGE"
+
+    export MEDIA_IGNORE_ITUNES=1
+    export MEDIA_MOVIE_BASE=$( mktemp -d )
+    export MEDIA_TESTING=short
+    echo "** $MEDIA_MOVIE_BASE"
+
+    # there should be nothing before we begin
+    dir_is_empty "$MEDIA_MOVIE_BASE"
+
+    cp "$EDITED_MOVIE_CONF" "$MOVIE_CONF"
+    cp tests/source/movie.jpg "$MOVIE_POSTER"
+    media-add-video "$DVD_MOVIE_IMAGE"
+
+    # media-add-video should have installed converted movie
+    [ $( count_files_in_dir "$MEDIA_MOVIE_BASE" ) = 2 ]
+
+    local install_dir="$MEDIA_MOVIE_BASE/All/The Thin Man"
+    echo "install_dir=$install_dir"
+    [ -d "$install_dir" ]
+
+    local installed="${install_dir}/The Thin Man - 1934 U.m4v"
+    echo "installed=$installed"
+    [ -f "$installed" ]
+
+    [ "$( media_lookup_atom "$installed" ©nam )"   = 'The Thin Man' ]
+    [ "$( media_lookup_atom "$installed" ©alb )"   = 'The Thin Man' ]
+    [ "$( media_lookup_atom "$installed" ©day )"   = '1934' ]
+    [ "$( media_lookup_rating_atom "$installed" )" = 'uk-movie|U|100|' ]
+    [ "$( media_lookup_atom "$installed" stik )"   = 'Movie' ]
+    [ "$( media_lookup_atom "$installed" covr )"   = '1 piece of artwork' ]
+
+    installed="${install_dir}/Extra - The Thin Man Trailer.m4v"
+    echo "$installed"
+    [ -f "$installed" ]
+
+    [ "$( media_lookup_atom "$installed" ©nam )"   = 'The Thin Man Trailer' ]
+    [ "$( media_lookup_atom "$installed" ©alb )"   = 'The Thin Man' ]
+    [ "$( media_lookup_atom "$installed" ©day )"   = '1934' ]
+    [ "$( media_lookup_rating_atom "$installed" )" = 'uk-movie|U|100|' ]
+    [ "$( media_lookup_atom "$installed" stik )"   = 'Movie' ]
+    [ "$( media_lookup_atom "$installed" covr )"   = '1 piece of artwork' ]
+
+    rm -rf $MEDIA_MOVIE_BASE
 }

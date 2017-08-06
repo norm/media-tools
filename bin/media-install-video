@@ -18,23 +18,6 @@ help_text "$*" <<'EOF'
 EOF
 
 
-function media_install {
-    local file="$1"
-    local type
-
-    while [ -n "$file" ]; do
-        type=$( media_lookup_atom "$file" stik )
-
-        case "$type" in
-            TV*)    media_install_tv "$file";;
-            *)      echo "Unknown media type: '${type}'";;
-        esac
-
-        shift
-        file="$1"
-    done
-}
-
 function media_install_tv {
     local -r file="$1"
 
@@ -56,6 +39,44 @@ function media_install_tv {
 
     mv "$file" "$destination"
     echo "$destination"
+}
+
+function media_install_movie {
+    local -r file="$1"
+
+    local -r title="$( media_lookup_atom "$file" ©nam )"
+    local -r album="$( media_lookup_atom "$file" ©alb )"
+    local -r year="$( media_lookup_atom "$file" ©day )"
+    local -r rating="$( itunes_to_rating "$( media_lookup_rating_atom "$file" )" )"
+    local -r dest_dir="${MOVIE_BASE}/All/${album}"
+    mkdir -p "$dest_dir"
+
+    if [ "$title" = "$album" ]; then
+        local -r destination="${dest_dir}/${title} - ${year} ${rating}.m4v"
+    else
+        local -r destination="${dest_dir}/Extra - ${title}.m4v"
+    fi
+
+    mv "$file" "$destination"
+    echo "$destination"
+}
+
+function media_install {
+    local file="$1"
+    local type
+
+    while [ -n "$file" ]; do
+        type=$( media_lookup_atom "$file" stik )
+
+        case "$type" in
+            TV*)    media_install_tv "$file";;
+            Movie*) media_install_movie "$file";;
+            *)      echo "Unknown media type: '${type}'";;
+        esac
+
+        shift
+        file="$1"
+    done
 }
 
 
