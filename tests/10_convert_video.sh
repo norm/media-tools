@@ -69,7 +69,7 @@ function compare_audio_tracks {
 
 @test "converts one track in a DVD" {
     SOURCE_FILE="tests/source/BUFFY_S4D3"
-    TRACK=19
+    TRACK=18
 
     needs_source $SOURCE_FILE
 
