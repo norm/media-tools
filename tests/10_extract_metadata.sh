@@ -107,7 +107,16 @@
 }
 
 @test "extracts using a config file if present" {
-    eval metadata=( $( media-extract-video-metadata tests/config ) )
+    local -r source="$( mktemp -d )"
+
+    sed -e 's/^        //' > "$source/metadata.conf" <<EOF
+        series = House
+        season = 2
+        episode = 23
+        title = Who's Your Daddy?
+EOF
+
+    eval metadata=( $( media-extract-video-metadata "$source" ) )
     [ "${metadata[0]}" == '--TVShowName=House' ]
     [ "${metadata[1]}" == '--TVSeasonNum=2' ]
     [ "${metadata[2]}" == '--TVEpisodeNum=23' ]
