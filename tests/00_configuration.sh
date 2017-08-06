@@ -9,12 +9,14 @@
         "ignore_itunes = "
         "trash_dir     = "
         "tv_base       = /files/tv"
+        "video_lang    = all"
     )
 
     media show-config
     run media show-config
 
     local count=0
+    [ "${#expects[@]}" = "${#lines[@]}" ]
     for line in "${expects[@]}"; do
         [ "${expects[$count]}" = "${lines[$count]}" ]
         let count=count+1
@@ -30,6 +32,7 @@
         "ignore_itunes = 1"
         "trash_dir     = /tmp/trash"
         "tv_base       = /tmp/tv"
+        "video_lang    = eng"
     )
 
     export MEDIA_CONFIG=tests/config/media.conf
@@ -37,6 +40,7 @@
     run media show-config
 
     local count=0
+    [ "${#expects[@]}" = "${#lines[@]}" ]
     for line in "${expects[@]}"; do
         [ "${expects[$count]}" = "${lines[$count]}" ]
         let count=count+1
@@ -52,6 +56,7 @@
         "ignore_itunes = "
         "trash_dir     = "
         "tv_base       = /files/tv"
+        "video_lang    = all"
     )
 
     export MEDIA_CONFIG=tests/config/partial.conf
@@ -59,6 +64,7 @@
     run media show-config
 
     local count=0
+    [ "${#expects[@]}" = "${#lines[@]}" ]
     for line in "${expects[@]}"; do
         [ "${expects[$count]}" = "${lines[$count]}" ]
         let count=count+1
@@ -74,16 +80,19 @@
         "ignore_itunes = 1"
         "trash_dir     = /tmp/trash"
         "tv_base       = /tmp/tv"
+        "video_lang    = spa"
     )
 
     export MEDIA_CONVERT_DIR=/tmp/convert
     export MEDIA_IGNORE_ITUNES=1
     export MEDIA_TRASH_DIR=/tmp/trash
     export MEDIA_TV_BASE=/tmp/tv
+    export MEDIA_VIDEO_LANG=spa
     media show-config
     run media show-config
 
     local count=0
+    [ "${#expects[@]}" = "${#lines[@]}" ]
     for line in "${expects[@]}"; do
         [ "${expects[$count]}" = "${lines[$count]}" ]
         let count=count+1
@@ -99,6 +108,7 @@
         "ignore_itunes = 2"
         "trash_dir     = /tmp/env/trash"
         "tv_base       = /tmp/env/tv"
+        "video_lang    = spa"
     )
 
     export MEDIA_CONFIG=tests/config/media.conf
@@ -109,10 +119,12 @@
     export MEDIA_IGNORE_ITUNES=2
     export MEDIA_TRASH_DIR=/tmp/env/trash
     export MEDIA_TV_BASE=/tmp/env/tv
+    export MEDIA_VIDEO_LANG=spa
     media show-config
     run media show-config
 
     local count=0
+    [ "${#expects[@]}" = "${#lines[@]}" ]
     for line in "${expects[@]}"; do
         [ "${expects[$count]}" = "${lines[$count]}" ]
         let count=count+1
