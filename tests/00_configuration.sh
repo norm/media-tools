@@ -7,6 +7,7 @@
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp"
         "ignore_itunes = "
+        "movie_base    = /files/movies"
         "trash_dir     = "
         "tv_base       = /files/tv"
         "video_lang    = all"
@@ -30,6 +31,7 @@
         "cd_rip_dir    = /tmp/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = 1"
+        "movie_base    = /tmp/movies"
         "trash_dir     = /tmp/trash"
         "tv_base       = /tmp/tv"
         "video_lang    = eng"
@@ -54,6 +56,7 @@
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = "
+        "movie_base    = /files/movies"
         "trash_dir     = "
         "tv_base       = /files/tv"
         "video_lang    = all"
@@ -78,6 +81,7 @@
         "cd_rip_dir    = ${HOME}/Music/rips"
         "convert_dir   = /tmp/convert"
         "ignore_itunes = 1"
+        "movie_base    = /tmp/movies"
         "trash_dir     = /tmp/trash"
         "tv_base       = /tmp/tv"
         "video_lang    = spa"
@@ -85,6 +89,7 @@
 
     export MEDIA_CONVERT_DIR=/tmp/convert
     export MEDIA_IGNORE_ITUNES=1
+    export MEDIA_MOVIE_BASE=/tmp/movies
     export MEDIA_TRASH_DIR=/tmp/trash
     export MEDIA_TV_BASE=/tmp/tv
     export MEDIA_VIDEO_LANG=spa
@@ -106,6 +111,7 @@
         "cd_rip_dir    = /tmp/env/rip"
         "convert_dir   = /tmp/env/convert"
         "ignore_itunes = 2"
+        "movie_base    = /tmp/env/movies"
         "trash_dir     = /tmp/env/trash"
         "tv_base       = /tmp/env/tv"
         "video_lang    = spa"
@@ -117,6 +123,7 @@
     export MEDIA_CD_RIP_DIR=/tmp/env/rip
     export MEDIA_CONVERT_DIR=/tmp/env/convert
     export MEDIA_IGNORE_ITUNES=2
+    export MEDIA_MOVIE_BASE=/tmp/env/movies
     export MEDIA_TRASH_DIR=/tmp/env/trash
     export MEDIA_TV_BASE=/tmp/env/tv
     export MEDIA_VIDEO_LANG=spa

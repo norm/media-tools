@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.9
+MEDIA_VERSION=0.10
 
 
 function media_status_line {
@@ -133,12 +133,28 @@ function apply_title_case {
     '
 }
 
+function rating_to_itunes {
+    case "$*" in
+        U)      echo 'uk-movie|U|100|' ;;
+        PG)     echo 'uk-movie|PG|200|' ;;
+        12)     echo 'uk-movie|12|300|' ;;
+        12A)    echo 'uk-movie|12A|325|' ;;
+        15)     echo 'uk-movie|15|350|' ;;
+        18)     echo 'uk-movie|18|400|' ;;
+    esac
+}
+
+function itunes_to_rating {
+    echo "$*" | cut -d'|' -f2
+}
+
 function show_configuration {
     echo "auto_add_dir  = $AUTO_ADD_DIR"
     echo "cache_dir     = $CACHE_DIR"
     echo "cd_rip_dir    = $CD_RIP_DIR"
     echo "convert_dir   = $CONVERT_DIR"
     echo "ignore_itunes = $IGNORE_ITUNES"
+    echo "movie_base    = $MOVIE_BASE"
     echo "trash_dir     = $TRASH_DIR"
     echo "tv_base       = $TV_BASE"
     echo "video_lang    = $VIDEO_LANG"
@@ -187,6 +203,7 @@ function show_configuration_help {
         cd_rip_dir     where the output of rip-cd is kept
         convert_dir    where video conversion temp files are kept
         ignore_itunes  set to stop add-video adding the file to iTunes
+        movie_base     where to store your converted movie content
         trash_dir      after converting, add-video will move video files here
         tv_base        where to store your converted TV content
         video_lang     the three-letter code for preferred audio language in
@@ -229,6 +246,17 @@ function media_lookup_atom {
         | perl -ne 's/^[^A]+//m; print;'    \
         | grep "Atom .${atom}."             \
         | cut -c23-
+}
+
+function media_lookup_rating_atom {
+    local -r file="$1"
+
+    # the perl invocation removes a unicode byte order mark character, which
+    # is probably useful, but makes it really hard to grep things consistently
+    AtomicParsley "$file" -t                \
+        | perl -ne 's/^[^A]+//m; print;'    \
+        | grep 'com.apple.iTunes;iTunEXTC'  \
+        | cut -c51-
 }
 
 function lookup_tv_id {
@@ -402,6 +430,7 @@ CACHE_DIR="${HOME}/Library/Caches/media-tools"
 CD_RIP_DIR="${HOME}/Music/rips"
 CONVERT_DIR=/tmp
 IGNORE_ITUNES=
+MOVIE_BASE=/files/movies
 TRASH_DIR=
 TV_BASE=/files/tv
 VIDEO_LANG=all
@@ -425,6 +454,8 @@ if [ -n "$MEDIA_CONFIG" ]; then
     [ -n "$convert" ] && CONVERT_DIR="${convert}"
     ignore="$( config_key "$MEDIA_CONFIG" ignore_itunes )"
     [ -n "$ignore" ] && IGNORE_ITUNES="${ignore}"
+    movie="$( config_key "$MEDIA_CONFIG" movie_base )"
+    [ -n "$movie" ] && MOVIE_BASE="${movie}"
     trash="$( config_key "$MEDIA_CONFIG" trash_dir )"
     [ -n "$trash" ] && TRASH_DIR="${trash}"
     tv="$( config_key "$MEDIA_CONFIG" tv_base )"
@@ -439,6 +470,7 @@ CACHE_DIR="${MEDIA_CACHE_DIR:=$CACHE_DIR}"
 CD_RIP_DIR="${MEDIA_CD_RIP_DIR:=$CD_RIP_DIR}"
 CONVERT_DIR="${MEDIA_CONVERT_DIR:=$CONVERT_DIR}"
 IGNORE_ITUNES="${MEDIA_IGNORE_ITUNES:=$IGNORE_ITUNES}"
+MOVIE_BASE="${MEDIA_MOVIE_BASE:=$MOVIE_BASE}"
 TRASH_DIR="${MEDIA_TRASH_DIR:=$TRASH_DIR}"
 TV_BASE="${MEDIA_TV_BASE:=$TV_BASE}"
 VIDEO_LANG="${MEDIA_VIDEO_LANG:=$VIDEO_LANG}"
