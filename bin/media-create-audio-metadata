@@ -60,7 +60,10 @@ function create_cd_metadata {
     local -r id=$( echo "$1" | cut -d' ' -f2 )
     local -r details="$( cddb_read_disc "$genre" "$id" )"
 
-    working_dir="${CD_RIP_DIR}/${id}"
+    # working dir uses the calculated ID (and not the one returned by CDDB)
+    # because some results are approximate matches with different IDs
+    # shellcheck disable=SC2154
+    working_dir="${CD_RIP_DIR}/${media_disc_id}"
     metadata_file="${working_dir}/metadata.conf"
     mkdir -p "$working_dir"
 
