@@ -7,6 +7,41 @@ green="\e[32m"
 ((status_width=$(tput cols) - 2))
 MEDIA_VERSION=0.10.1
 
+trap trap_err ERR
+trap trap_exit EXIT
+declare -i stacktrace_shown=0
+
+
+function trap_exit {
+    local code="$?"
+    if [[ "$code" != 0 && $stacktrace_shown != 1 ]]; then
+        stacktrace
+    fi
+}
+
+function trap_err {
+    local code="$?"
+    local _cmd="${BASH_COMMAND:-unknown}"
+
+    echo "The command ${_cmd} exited with exit code ${code}." 1>&2
+    stacktrace
+}
+
+function stacktrace {
+    local -i i=0
+    local -i j=0
+
+    echo ''
+    echo "Traceback (last called is first):" 1>&2
+    for ((i=2; i < ${#BASH_SOURCE[@]}; i++)); do
+        j=$((i-1))
+        printf '    %s() in %s, line %d\n' \
+            "${FUNCNAME[$i]}" \
+            "${BASH_SOURCE[$i]}" \
+            "${BASH_LINENO[$j]}" 1>&2
+    done
+    stacktrace_shown=1
+}
 
 function media_status_line {
     # print a status update, which will be replaced by the next output;
