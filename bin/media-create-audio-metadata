@@ -8,12 +8,16 @@ source $(which media)
 is_sub "$*" true
 summary_line "$*" 'create metadata file from audio CD'
 help_text "$*" <<'EOF'
-    Usage: media create-audio-metadata
+    Usage: media create-audio-metadata [blank]
 
     Queries CDDB and creates a metadata.conf file from the currently
     inserted CD. You can override the location where these files are
     written by setting the environment variable MEDIA_CD_RIP_DIR, or the
     config setting cd_rip_dir.
+
+    If the argument 'blank' is given, or there is no CD in the drive,
+    a set of blank metadata will be echoed to standard output. This is
+    useful for non-CD based rip directories.
 
     Whilst this can be used manually, it is normally invoked
     automatically by `rip-cd`.
@@ -53,6 +57,57 @@ function cddb_entry {
                     | awk -F= '{ print $2 }'
             ;;
     esac
+}
+
+function output_blank_metadata {
+    sed -e 's/^        //' <<EOF
+        album = REPLACE_ME
+        artist = REPLACE_ME
+        compilation = false
+        disk = 1/1
+        genre = REPLACE_ME
+        purchaseDate = 1970-01-01T12:00:00Z
+        year = REPLACE_ME
+
+        # tracks can also over-ride options, such as:
+        #   artist = <track artist>
+        #   genre  = <track genre>
+        #   year   = <track year>
+        #
+        # other options:
+        #   grouping = <grouping>
+        #   comment = [instrumental]
+
+        [01]
+        title = REPLACE_ME
+
+        [02]
+        title = REPLACE_ME
+
+        [03]
+        title = REPLACE_ME
+
+        [04]
+        title = REPLACE_ME
+
+        [05]
+        title = REPLACE_ME
+
+        [06]
+        title = REPLACE_ME
+
+        [07]
+        title = REPLACE_ME
+
+        [08]
+        title = REPLACE_ME
+
+        [09]
+        title = REPLACE_ME
+
+        [10]
+        title = REPLACE_ME
+EOF
 }
 
 function create_cd_metadata {
@@ -109,6 +164,11 @@ EOF
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     eval "$( media-get-cd-id )"
+
+    if [ "$media_disc_id" = '00000000' -o "$1" = 'blank' ]; then
+        output_blank_metadata
+        exit
+    fi
 
     # grab each match as an array entry; use the first as the default
     declare -a matches
