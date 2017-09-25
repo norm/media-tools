@@ -195,10 +195,8 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
         match="${matches[$number]}"
     fi
 
-    if [ -z "$match" ]; then
-        echo "'$choice' is not a valid choice."
-        exit 1
-    fi
+    [ -z "$match" ] \
+        && media_error "'$choice' is not a valid choice."
 
     create_cd_metadata "$match"
 fi

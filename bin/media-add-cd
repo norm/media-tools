@@ -26,10 +26,8 @@ for rip in "$@"; do
     [ ! -d "$rip" ] \
         && rip="$CD_RIP_DIR/$rip"
 
-    if [ ! -d "$rip" ]; then
-        echo "** Unable to find directory '$rip'"
-        exit 1
-    fi
+    [ ! -d "$rip" ] \
+        && media_error "Unable to find directory '$rip'"
 
     last_track=$(
         basename "$( find "$rip/wavs/" -type f | tail -1 )" .wav

@@ -31,7 +31,8 @@ MOVIE_POSTER="$DVD_MOVIE_IMAGE/poster.jpg"
     cp "$UNEDITED_CONF" "$CONF"
 
     run media-add-video "$DVD_IMAGE"
-    [ "$output" == "'$DVD_IMAGE/metadata.conf' has not been filled out; aborting." ]
+    [[ "$output" == \
+        *"'$DVD_IMAGE/metadata.conf' has not been filled out; aborting."* ]]
 }
 
 @test "ignores REPLACE_ME tokens that are commented out" {
