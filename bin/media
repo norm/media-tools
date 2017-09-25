@@ -14,7 +14,8 @@ declare -i stacktrace_shown=0
 
 function trap_exit {
     local code="$?"
-    if [[ "$code" != 0 && $stacktrace_shown != 1 ]]; then
+
+    if [[ "$code" != 254 && "$code" != 0 && $stacktrace_shown != 1 ]]; then
         stacktrace
     fi
 }
@@ -23,8 +24,10 @@ function trap_err {
     local code="$?"
     local _cmd="${BASH_COMMAND:-unknown}"
 
-    echo "The command ${_cmd} exited with exit code ${code}." 1>&2
-    stacktrace
+    if [ "$code" != 254 ]; then
+        echo >&2 "The command ${_cmd} exited with exit code ${code}."
+        stacktrace
+    fi
 }
 
 function stacktrace {
@@ -57,8 +60,9 @@ function media_echo {
 }
 
 function media_error {
-    media_warning "$*"
-    exit 1
+    >&2 media_warning "$*"
+    stacktrace_shown=1
+    exit 254
 }
 
 function media_warning {
