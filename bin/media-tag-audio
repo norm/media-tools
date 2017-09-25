@@ -27,6 +27,7 @@ function media_tag_audio {
     if ! AtomicParsley          \
             "$file"             \
             --overWrite         \
+            --freefree 1        \
             "$@"                \
                 >/dev/null      \
                 2>"$atomic_output";
