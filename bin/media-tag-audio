@@ -18,15 +18,25 @@ help_text "$*" <<'EOF'
 EOF
 
 
+atomic_output="$(mktemp)"
+
 function media_tag_audio {
     local -r file="$1"
     shift
 
-    AtomicParsley           \
-        "$file"             \
-        --overWrite         \
-        "$@"                \
-            >/dev/null
+    if ! AtomicParsley          \
+            "$file"             \
+            --overWrite         \
+            --freefree 1        \
+            "$@"                \
+                >/dev/null      \
+                2>"$atomic_output";
+    then
+        local -r exit_code="$?"
+        cat "$atomic_output"
+        rm -f "$atomic_output"
+        exit "$exit_code"
+    fi
 }
 
 
