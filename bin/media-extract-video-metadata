@@ -132,8 +132,7 @@ function extract_metadata_from_file {
                  "--title=\"$title\"" \
                  '--stik="TV Show"'
         else
-            echo "Error: missing TV series metadata in '$1/metadata.conf'"
-            exit 1
+            media_error "missing TV series metadata in '$1/metadata.conf'"
         fi
     elif [ -n "$movie" ]; then
         local -r year="$( config_key "$dir/metadata.conf" year "$track" )"
@@ -160,8 +159,7 @@ function extract_metadata_from_file {
                  '--stik=Movie'
         fi
     else
-        echo "Error: unknown metadata in '$1/metadata.conf'"
-        exit 1
+        media_error "unknown metadata in '$1/metadata.conf'"
     fi
 }
 

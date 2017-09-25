@@ -69,10 +69,8 @@ function abort_if_metadata_unedited {
             | grep REPLACE_ME
     )
 
-    if [ -n "$tokens" ]; then
-        echo "'$metadata' has not been filled out; aborting."
-        exit 1
-    fi
+    [ -n "$tokens" ] \
+        && media_error "'$metadata' has not been filled out; aborting."
 }
 
 function convert_and_add_from_dvd_image {

@@ -23,10 +23,8 @@ EOF
 eval "$( media-get-cd-id )"
 
 # shellcheck disable=SC2154
-if [ "$media_disc_id" = 00000000 ]; then
-    echo "No CD found?"
-    exit 1
-fi
+[ "$media_disc_id" = 00000000 ] \
+    && media_error "No CD found?"
 
 # shellcheck disable=SC2154
 working_dir="${CD_RIP_DIR}/$media_disc_id"
