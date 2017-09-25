@@ -35,13 +35,13 @@ function stacktrace {
     local -i j=0
 
     echo ''
-    echo "Traceback (last called is first):" 1>&2
+    echo >&2 "Traceback (last called is first):"
     for ((i=2; i < ${#BASH_SOURCE[@]}; i++)); do
         j=$((i-1))
-        printf '    %s() in %s, line %d\n' \
+        printf >&2 '    %s() in %s, line %d\n' \
             "${FUNCNAME[$i]}" \
             "${BASH_SOURCE[$i]}" \
-            "${BASH_LINENO[$j]}" 1>&2
+            "${BASH_LINENO[$j]}"
     done
     stacktrace_shown=1
 }
