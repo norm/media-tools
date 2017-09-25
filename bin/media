@@ -55,7 +55,7 @@ function media_status_line {
 }
 
 function media_echo {
-    # output text, bkut padded with spaces to overwrite any previous status
+    # output text, but padded with spaces to overwrite any previous status
     printf "%-${status_width}s\n" "$*"
 }
 
@@ -66,12 +66,12 @@ function media_error {
 }
 
 function media_warning {
-    # output text, bkut padded with spaces to overwrite any previous status
+    # output text, but padded with spaces to overwrite any previous status
     printf "${bold}${red}%-${status_width}s${reset}\n" "*** $*"
 }
 
 function media_success {
-    # output text, bkut padded with spaces to overwrite any previous status
+    # output text, but padded with spaces to overwrite any previous status
     printf "${bold}${green}%-${status_width}s${reset}\n" "$*"
 }
 
