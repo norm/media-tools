@@ -141,23 +141,31 @@ function create_cd_metadata {
         #   comment = [instrumental]
 EOF
 
-    local track=0
+    local track="$media_disc_first_audio_track"
+    local track_offset=$((track - 1))
+
     while true; do
+        local cddb_track
+        local cd_track
         local title
         local section
 
-        title="$( apply_title_case "$(cddb_entry "$details" "TTITLE$track")" )"
+        # CDDB is 0 indexed
+        cddb_track=$((track - 1))
+        title="$( apply_title_case "$(cddb_entry "$details" "TTITLE$cddb_track")" )"
         [ -z "$title" ] && break
 
-        # increment before echo, because CDDB is 0 indexed
-        let track=track+1
-        section="$( printf '%02d' $track )"
+        # allow for CDs with data tracks at the start
+        cd_track=$((track - track_offset))
+        section="$( printf '%02d' $cd_track )"
 
         sed -e 's/^            //' >> "$metadata_file" <<EOF
 
             [$section]
             title = ${title}
 EOF
+
+        let track=track+1
     done
 }
 

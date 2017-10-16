@@ -47,8 +47,14 @@ cat "$cd_output" | perl -E '
                 (\d+),
                 (\d+)
             }x;
+        my $audio_track_regexp = qr{
+                ^
+                \s+
+                (\d+) \.
+            }x;
 
         my $track_count = 0;
+        my $first_audio_track;
         my $seconds_first;
         my $seconds_last;
         my $cddbp_sum;
@@ -72,6 +78,12 @@ cat "$cd_output" | perl -E '
                 map { $cddbp_sum += $_; } split(//, $seconds_begin);
                 push @offsets, $frame_offset;
             }
+            else {
+                if (! defined $first_audio_track ) {
+                    $first_audio_track = $1
+                        if $line =~ $audio_track_regexp;
+                }
+            }
         }
 
         my $track_id = sprintf "%02x%04x%02x",
@@ -84,6 +96,7 @@ cat "$cd_output" | perl -E '
             join( "+", @offsets ),
             "+$seconds_last";
         say "media_disc_track_count=$track_count";
+        say "media_disc_first_audio_track=$first_audio_track";
     '
 
 rm "$cd_output"
