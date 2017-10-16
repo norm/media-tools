@@ -80,10 +80,14 @@ function extract_metadata_from_directory_name {
         }x;
 
         if (defined $+{'series'}) {
+            my \$album = qq(\$+{'series'}, Season \$+{'season'});
+
             say join ' ',
                 '--TVShowName=' . quote_string($+{'series'}),
                 '--TVSeasonNum=' . $+{'season'},
                 '--TVEpisodeNum=' . $+{'episode'},
+                '--album=' . quote_string(\$album),
+                '--artist=' . quote_string(\$album),
                 '--title=' . quote_string($+{'title'}),
                 '--stik=' . quote_string('TV Show'),
         }
@@ -109,7 +113,7 @@ function extract_metadata_from_directory_name {
 function extract_metadata_from_file {
     local -r dir="$1"
     local -r track="$2"
-    local series movie season episode title
+    local series movie season episode title album
 
     series="$( config_key "$dir/metadata.conf" series "$track" )"
     movie="$( config_key "$dir/metadata.conf" movie "$track" )"
@@ -126,9 +130,12 @@ function extract_metadata_from_file {
         # FIXME
         # shellcheck disable=SC2166
         if [ -n "$series" -a -n "$season" -a -n "$episode" -a -n "$title" ]; then
+            album="${series}, Season ${season}"
             echo "--TVShowName=\"${series}\"" \
                  "--TVSeasonNum=$season" \
                  "--TVEpisodeNum=$episode" \
+                 "--album=\"$album\"" \
+                 "--artist=\"$album\"" \
                  "--title=\"$title\"" \
                  '--stik="TV Show"'
         else
