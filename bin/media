@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.11
+MEDIA_VERSION=0.11.1
 
 trap trap_err ERR
 trap trap_exit EXIT
@@ -109,6 +109,13 @@ function config_as_atoms {
         my \$section = '$section';
         my %values;
 
+        sub quote_string {
+            my \$string = shift;
+            \$string =~ s/\\\$/\\\\\\\$/g;
+            \$string =~ s/\"/\\\\\"/g;
+            return \$string;
+        }
+
         while (<>) {
             s/^ *(.*?) *$/\1/;
             next if m/^$/;
@@ -132,7 +139,8 @@ function config_as_atoms {
         }
 
         for my \$key ( sort keys %values ) {
-            say \"\--\$key=\\\"\$values{\$key}\\\"\";
+            my \$value = quote_string(\$values{\$key});
+            say \"\--\$key=\\\"\$value\\\"\";
         }
     " "$filename"
 }

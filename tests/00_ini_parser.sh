@@ -125,3 +125,26 @@ INI_FILE=tests/config/example.ini
         let count=count+1
     done
 }
+
+@test "read keys with double quotes from a section" {
+    local -a expects=(
+         '--album="Tomb Raider"'
+         '--artist="Nathan McCree"'
+         '--compilation="false"'
+         '--disk="1/1"'
+         '--genre="Game"'
+         '--purchaseDate="1996-10-25T12:00:00Z"'
+         $'--title="\\"Here lies Tahocan…\\""'
+         '--year="1996-10-25T12:00:00Z"'
+    )
+
+    config_as_atoms tests/source/tomb_raider/metadata.conf 01
+    run config_as_atoms tests/source/tomb_raider/metadata.conf 01
+
+    local count=0
+    for line in "${expects[@]}"; do
+        echo "count=$count ${expects[$count]} = ${lines[$count]}"
+        [ "${expects[$count]}" = "${lines[$count]}" ]
+        let count=count+1
+    done
+}
