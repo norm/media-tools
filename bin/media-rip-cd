@@ -55,4 +55,4 @@ for track in $(seq "$media_disc_first_audio_track" "$media_disc_track_count"); d
     echo ''
 done
 
-drutil eject
+drutil -drive "${MEDIA_CD_RIP_DRIVE:-1}" eject
