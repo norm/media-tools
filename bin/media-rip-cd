@@ -47,7 +47,7 @@ for track in $(seq "$media_disc_first_audio_track" "$media_disc_track_count"); d
     title=$( config_key "$metadata" title "$cd_track" )
     output_file="${working_dir}/wavs/${cd_track}.wav"
 
-    printf "%02d/%02d %s\n" \
+    printf "%s/%02d %s\n" \
         "$cd_track" \
         "$media_disc_track_count" \
         "$title"
