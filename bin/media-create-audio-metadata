@@ -143,27 +143,35 @@ EOF
 
     local track="$media_disc_first_audio_track"
     local track_offset=$((track - 1))
+    local cddb_track
+    local cd_track
+    local title
+    local artist
+    local section
 
     while true; do
-        local cddb_track
-        local cd_track
-        local title
-        local section
-
         # CDDB is 0 indexed
         cddb_track=$((track - 1))
-        title="$( apply_title_case "$(cddb_entry "$details" "TTITLE$cddb_track")" )"
+        title="$(cddb_entry "$details" "TTITLE$cddb_track")"
+
         [ -z "$title" ] && break
+
+        artist=
+        if [[ "$title" == *' / '* ]]; then
+            artist=$( echo "$title" | awk -F' / ' '{ print $1 }' )
+            title=$( echo "$title" | awk -F' / ' '{ print $2 }' )
+        fi
 
         # allow for CDs with data tracks at the start
         cd_track=$((track - track_offset))
         section="$( printf '%02d' $cd_track )"
 
-        sed -e 's/^            //' >> "$metadata_file" <<EOF
+        echo '' >> "$metadata_file"
+        echo "[$section]" >> "$metadata_file"
 
-            [$section]
-            title = ${title}
-EOF
+        [ -n "$artist" ] \
+            && echo "artist = $artist" >> $metadata_file
+        echo "title = $( apply_title_case "$title" )" >> "$metadata_file"
 
         let track=track+1
     done

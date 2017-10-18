@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.12.1
+MEDIA_VERSION=0.13
 
 trap trap_err ERR
 trap trap_exit EXIT

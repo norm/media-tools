@@ -24,6 +24,16 @@ source bin/media-create-audio-metadata
         "$MEDIA_CD_RIP_DIR/a60b080d/metadata.conf"
 }
 
+@test "get CD with various artists CDDB details" {
+    media_disc_id=040f7512
+    media_disc_track_count=1
+    media_disc_first_audio_track=1
+    create_cd_metadata "rock 040f7512"
+    diff -u \
+        tests/inputs/various_artists_metadata.conf \
+        "$MEDIA_CD_RIP_DIR/040f7512/metadata.conf"
+}
+
 @test "get CD mixed media CDDB details" {
     media_disc_id=f80d9039
     media_disc_track_count=57
