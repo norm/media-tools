@@ -114,6 +114,10 @@ function create_cd_metadata {
     local -r genre=$( echo "$1" | cut -d' ' -f1 )
     local -r id=$( echo "$1" | cut -d' ' -f2 )
     local -r details="$( cddb_read_disc "$genre" "$id" )"
+    local compilation='false'
+
+    [ "$(cddb_entry "$details" DARTIST)" == 'Various Artists' ] \
+        && compilation='true'
 
     # working dir uses the calculated ID (and not the one returned by CDDB)
     # because some results are approximate matches with different IDs
@@ -125,7 +129,7 @@ function create_cd_metadata {
     sed -e 's/^        //'> "$metadata_file" <<EOF
         album = $(cddb_entry "$details" DALBUM)
         artist = $(cddb_entry "$details" DARTIST)
-        compilation = false
+        compilation = $compilation
         disk = 1/1
         genre = $(cddb_entry "$details" DGENRE)
         purchaseDate = 1970-01-01T12:00:00Z
