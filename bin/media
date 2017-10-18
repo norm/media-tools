@@ -5,7 +5,7 @@ bold="\e[1m"
 red="\e[31m"
 green="\e[32m"
 ((status_width=$(tput cols) - 2))
-MEDIA_VERSION=0.13
+MEDIA_VERSION=0.13.1
 
 trap trap_err ERR
 trap trap_exit EXIT
@@ -349,6 +349,9 @@ function cddb_matches {
         200)    # exact match, strip the status code
             echo "$matches" \
                 | cut -d' ' -f2-
+            ;;
+
+        202)    # no match for this disc
             ;;
 
         210)    # multiple matches, strip the CDDB protocol lines

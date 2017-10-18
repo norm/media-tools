@@ -119,13 +119,6 @@ function create_cd_metadata {
     [ "$(cddb_entry "$details" DARTIST)" == 'Various Artists' ] \
         && compilation='true'
 
-    # working dir uses the calculated ID (and not the one returned by CDDB)
-    # because some results are approximate matches with different IDs
-    # shellcheck disable=SC2154
-    working_dir="${CD_RIP_DIR}/${media_disc_id}"
-    metadata_file="${working_dir}/metadata.conf"
-    mkdir -p "$working_dir"
-
     sed -e 's/^        //'> "$metadata_file" <<EOF
         album = $(cddb_entry "$details" DALBUM)
         artist = $(cddb_entry "$details" DARTIST)
@@ -190,10 +183,23 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
         exit
     fi
 
+    # working dir uses the calculated ID (and not the one returned by CDDB)
+    # because some results are approximate matches with different IDs
+    # shellcheck disable=SC2154
+    working_dir="${CD_RIP_DIR}/${media_disc_id}"
+    metadata_file="${working_dir}/metadata.conf"
+    mkdir -p "$working_dir"
+
     # grab each match as an array entry; use the first as the default
     declare -a matches
     IFS=$'\n' matches=($( cddb_matches "$media_disc_query" ))
     match="${matches[0]}"
+
+    # if there are no matches, use the blank metadata
+    if [ -z "$match" ]; then
+        output_blank_metadata > "$metadata_file"
+        exit
+    fi
 
     # if there is only one match, use it; otherwise prompt user to choose
     if [ "${#matches[@]}" -gt 1 ]; then
